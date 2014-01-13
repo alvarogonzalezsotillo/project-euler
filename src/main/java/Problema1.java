@@ -10,7 +10,9 @@ public class Problema1 {
     public static void main (String [] arg) {
 
         for( int veces = 1 ; veces < 1000 ; veces++ ){
-            if (veces % 5 == 0 || veces % 3 == 0 )
+            if (veces % 5 == 0 || veces % 3 == 0 ){
+
+            }
         }
 
     }
