@@ -39,8 +39,9 @@ Find the value of d < 1000 for which 1/d contains the longest recurring cycle in
   val maxNumber = 1000
   
   // IN ANY DIVISION, THE MAX LENGTH OF THE CYCLE IS THE DENOMINATOR MINUS 1
-  // PROOF: Dividing by N, the remainder is always less than N. After N iteration, 
-  // at least one remainder must apear twice, and then the sequence of remainders repeats.
+  // PROOF: Dividing by N, the remainder is always less than N. After N iterations, 
+  // at least one remainder must apear twice, and then the sequence of remainders 
+  // repeats itself.
   val solution = (1 to 1000).reverse.find( n => n == recurringCycleSize(n)+1 )
 
   println(s"Solution:$solution")
