@@ -18,7 +18,7 @@ object Problem15 extends App {
   */
 
   /**
-   *  Counting line Numeroersections (not squares):
+   *  Counting line intersections (not tiles):
    *
    *  n x m grid => same paths as m x n grid
    *  n x 1 grid => 1 path
@@ -30,6 +30,7 @@ object Problem15 extends App {
   object routes{
     val cache = mutable.Map[(Numero,Numero),Numero]()
     def apply( n: Numero, m: Numero ) = {
+      // Arguments expressed in tiles, algorithm in line intersections
       pathsTo( (n+1,m+1) )
     }
 
@@ -44,7 +45,6 @@ object Problem15 extends App {
           case (n,m) => pathsTo( (n-1,m) ) + pathsTo( (n,m-1))
         }
         cache += key -> paths
-        println( s"$key -> $paths")
         paths
       }
     }
