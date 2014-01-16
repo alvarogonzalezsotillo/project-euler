@@ -1,3 +1,5 @@
+import scala.collection.immutable.IndexedSeq
+
 object Problem11 extends App {
   /*
 In the 20×20 grid below, four numbers along a diagonal line have been marked in red.
@@ -50,20 +52,29 @@ What is the greatest product of four adjacent numbers in the same direction (up,
                    01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48"""
 
     val lines = input.split( "\\r+\\n+" )
-    val numbers = lines.map( _.split( "\\s+" ).map(_.toInt ) )
-    
+    val numbers = lines.map( _.split( "\\s+" ).filter(_ != "").map(_.toInt ) )
+
     def apply( x: Int, y: Int ) = {
-      if( x < 0 || x > widht ) 0
-      else if( y < 0 || y > heigth ) 0
-      else numbers(y)(x)
+      if( columns.contains(x) && columns.contains(y) ) numbers(y)(x)
+      else 0
     }
     
-    def widht = numbers(0).size
-    def heigth = numbers.size
+    def width = numbers(0).size
+    def height = numbers.size
+
+    val columns = 0 until width
+    val rows = 0 until height
   }
-  
-  for( x <- 0 to grid.widht ; y <- 0 to grid.heigth ) print( grid(x,y) )
- 
-  val solution = ???
+
+  val runSize = 4
+
+  def run( dx: Int, dy: Int )(x: Int, y: Int) = for( c <- 0 until runSize ) yield grid(x+c*dx,y+c*dy)
+  val directions = Seq(run(0,1) _,run(1,0) _,run(1,1) _, run(1,-1) _)
+  val products = for( d <- directions;
+                      x <- grid.columns ;
+                      y <- grid.rows ) yield d(x,y).product
+
+  val solution = products.max
+
   println( s"Solution: $solution")
 }
