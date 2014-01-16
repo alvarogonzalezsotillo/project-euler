@@ -37,7 +37,6 @@ object Problem454 extends App{
       case _ =>
         val nextPrimes = primesFrom.dropWhile( p => n % p != 0 )
         val factor = nextPrimes.head
-        println( factor )
         pf( n/factor, nextPrimes, factor :: accum )
     }
 
@@ -45,10 +44,33 @@ object Problem454 extends App{
     factors.groupBy(n => n).mapValues(_.size.asInstanceOf[Numero])
   }
 
-  def numberOfDivisors( n: Numero ) = primeFactors(n).values.map(_+1).product
 
+  /*
+  
+    1/x + 1/y = 1/n  => xy/(x+y)=n  => x and y have all the prime factors of x+y
+  
+   */
+   
+  def isDivisible( n: Numero, m : Numero ) = {
+    val nfactors = primeFactors(n)
+    val mfactors = primeFactors(m)
+    
+    val ret = nfactors.find{ case(factor,times) => 
+      mfactors.get(factor) match{
+        case Some(t) => times <= t
+        case None => false
+      }
+    }
+    
+    !ret.isDefined
+  }
+  
+  def function(L: Int) = {
+    val list = for( x <- 1 to L ; y <- 1 until x ) yield isDivisible(x*y,x+y)
+    list.count(b=>b)
+  }  
+  
 
-  val p = primes.takeWhile( _ < 1000000 )
-  println( primeFactors(100) )
-  println( primeFactors(1234567891234L) )
+  for( L <- 2 to 100 ) println( s"$L: ${function(L)}" )
+
 }
