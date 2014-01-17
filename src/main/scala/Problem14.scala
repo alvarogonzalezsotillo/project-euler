@@ -23,35 +23,47 @@ Which starting number, under one million, produces the longest chain?
 NOTE: Once the chain starts the terms are allowed to go above one million.
    */
 
-  type Numero = Long
+  type Numero = BigDecimal
+
+  implicit def toNumero( l: Long ) = BigDecimal(l)
+  implicit def toNumero( l: Int ) = BigDecimal(l)
+  implicit def toInt( n: Numero ) = n.toInt
+  implicit def toLong( n: Numero ) = n.toLong
+
+  object Numero{
+    def apply(l: Long) = toNumero(l)
+    def apply(l: Int) = toNumero(l)
+    def unapply(n: Numero) = Some(toLong(n))
+  }
+
 
   class collatzSize( upTo: Int ){
 
-    val cache = new Array[Numero](upTo*10)
+    val cache = Array.tabulate(upTo*4)( i => Numero(0) )
 
-    def apply(n: Int ) : Numero = apply(n.asInstanceOf[Numero])
 
     def apply(n : Numero ) : Numero = {
 
       def cs( n: Numero, accum: Numero ) : Numero = {
 
-        if( n < cache.size && cache(n.asInstanceOf[Int]) != 0 ) cache(n.asInstanceOf[Int])+accum-1
+        if( n < cache.size && cache(n) != 0 )
+          cache(n)+accum-1
         else n match {
-          case 1           => accum
+          case Numero(1)   => accum
           case n if n%2==0 => cs( n/2, accum+1 )
-          case n if n%2!=0 => cs( 3*n+1, accum+1 )
+          case n if n%2!=0 => cs( n*3+1, accum+1 )
         }
       }
       val ret = cs(n,1)
-      if( n < cache.size ) cache(n.asInstanceOf[Int]) = ret
+      if( n < cache.size ) cache(n) = ret
       println( s"$n -> $ret")
       ret
     }
   }
 
-  val cs = new collatzSize(100000)
-  val c = (1 until 1000000).map( cs.apply _ )
-  val solution = c.max
+  val cs = new collatzSize(1000000)
+  val c = (1 until 1000000).map( i => (i,cs( Numero(i) ) ) )
+  val solution = c.maxBy( _._2 )._1
   println( s"Solution:$solution")
 
 }
