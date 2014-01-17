@@ -8,47 +8,12 @@ import scala.annotation.tailrec
  * To change this template use File | Settings | File Templates.
  */
 object Problem454 extends App{
-  type Numero = Long
+  type Numero = BigDecimal
 
-  lazy val primes: Stream[Numero] = {
-    def next(p: Numero): Stream[Numero] = {
+  val n = BigDecimal(1000000000000L)
+  val m = BigDecimal(999999999999L)
+  val nm = n*m
+  val f = nm / (n+m)
 
-      def isPrime(n: Numero) = {
-        val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
-        ret.head * ret.head > n
-      }
-
-      @tailrec
-      def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
-
-      val np = nextPrime(p + 1)
-      np #:: next(np)
-    }
-
-    2 #:: 3 #:: next(3)
-  }
-
-  def primeFactors( n: Numero ): Map[Numero, Numero] = {
-
-    @tailrec
-    def pf( n: Numero, primesFrom: Stream[Numero], accum : List[Numero] ) : List[Numero] = n match {
-      case 0 => accum
-      case 1 => accum
-      case _ =>
-        val nextPrimes = primesFrom.dropWhile( p => n % p != 0 )
-        val factor = nextPrimes.head
-        println( factor )
-        pf( n/factor, nextPrimes, factor :: accum )
-    }
-
-    val factors = pf( n, primes, Nil )
-    factors.groupBy(n => n).mapValues(_.size.asInstanceOf[Numero])
-  }
-
-  def numberOfDivisors( n: Numero ) = primeFactors(n).values.map(_+1).product
-
-
-  val p = primes.takeWhile( _ < 1000000 )
-  println( primeFactors(100) )
-  println( primeFactors(1234567891234L) )
+  println( s"$nm  ${n+m}  $f")
 }
