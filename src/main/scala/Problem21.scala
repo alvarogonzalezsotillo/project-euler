@@ -17,6 +17,7 @@ For example, the proper divisors of 220 are 1, 2, 4, 5, 10, 11, 20, 22, 44, 55 a
 Evaluate the sum of all the amicable numbers under 10000.
    */
 
+  val ini = System.currentTimeMillis()
   type Numero = Long
 
   lazy val primes: Stream[Numero] = {
@@ -58,43 +59,26 @@ Evaluate the sum of all the amicable numbers under 10000.
     for (s <- subsets(factors) if s.size != factors.size) yield product(s)
   }
 
-  def amicables(a: Numero, b: Numero) = {
-    lazy val da = divisors(a).sum
-    lazy val db = divisors(b).sum
-    a != b && da == b && db == a
-  }
+  def sumOfDivisors(n: Numero) = divisors(n).sum
 
-  object amicableOf{
-    val NONUMBER = -1L
-    val cache = collection.mutable.Map[Numero,Numero]()
+  val NONUMBER: Numero = -1
 
-    def apply(n: Numero)  = cache.get(n) match{
-      case Some(NONUMBER) => None
-      case Some(a)        => Some(a)
-      case None           => compute(n) match{
-        case Some(b) =>
-          cache(b) = n
-          cache(n) = b
-          Some(b)
-        case None => None
-          cache(n) = NONUMBER
-          None
-      }
-    }
-
-    def compute(a: Numero) = {
-      val da = divisors(a).sum
-      val db = divisors(da).sum
-      if( a == db ) Some(da) else None
-    }
+  def amicableOf(a: Numero) = {
+    val da = sumOfDivisors(a)
+    val db = sumOfDivisors(da)
+    if (a == db && a != da)
+      da
+    else
+      NONUMBER
   }
 
 
-  //val amicableNumbers = for (a <- 1 until 10000; b <- a + 1 until 10000 if amicables(a, b)) yield Seq(a, b)
-  val amicableNumbers = for( a <- 1 until 10000 ) yield amicableOf(a) match{
-    case Some(b) => Seq(a,b)
-    case None => Nil
+  var solution: Numero = 0
+  val amicableNumbers = for (a <- 1 until 10000) {
+    val b = amicableOf(a)
+    if ( b > a ) solution += a + b
   }
-  val solution = amicableNumbers.flatten.sum
+
   println(s"Solution: $solution")
+  println(s"${System.currentTimeMillis - ini}")
 }
