@@ -27,10 +27,8 @@ What is the first term in the Fibonacci sequence to contain 1000 digits?
   lazy val fibonacci: Stream[BigDecimal] = 
     BigDecimal(0) #::
     BigDecimal(1) #::
-    fibonacci_raro.zip(fibonacci_raro.tail).map {
-      n => n._1 + n._2
-    }
+    fibonacci.zip(fibonacci.tail).map( n => n._1 + n._2 )
     
-  val   
-
+  val solution = fibonacci.zipWithIndex.dropWhile{ case (f,i) => f.toString.size < 1000 }.head
+  println( s"Solution:$solution" )
 }
