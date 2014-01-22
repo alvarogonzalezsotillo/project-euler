@@ -15,4 +15,54 @@ object Problem24 extends App{
 What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9?
    */
 
+  type Numero = Long
+
+  def fact( n: Numero ) : Numero= if( n == 1 ) 1 else n*fact(n-1)
+
+  
+  def positionsOfDigits( digitSize: Int, permutation: Numero ) = {
+
+    
+    /**
+     * Digit in position, assuming it is the lowest possible digit
+     */
+    def poisitionOfDigits( digit: Numero ) = {
+      if( digit == digitSize-1 ) 
+        0
+      else 
+        permutation%fact(digitSize-digit) / fact(digitSize-digit-1)
+    }
+
+    val NODIGIT = -1
+    val ret = Array.tabulate(digitSize)(i=>NODIGIT)
+    
+    for( d <- 0 until digitSize ){
+      //println( s"d:$d" )
+      var pod = poisitionOfDigits(d)
+      //println( s"  pod:$pod" )
+      var index = 0
+      while( pod > 0 || ret(index) != NODIGIT ){
+        if( ret(index) == NODIGIT ) pod -= 1
+        index += 1
+      }
+      //println( s"  index:$index" )
+      ret(index) = d
+      //println( s"  ret:${ret.mkString(",")}" )
+    }
+    
+    ret
+  }
+  
+  def lexicographicPermutation( digitSize: Int, permutation: Numero ) = {
+    val pod = positionsOfDigits(digitSize,permutation)
+    val ret = Array.ofDim[Int](digitSize)
+    pod.zipWithIndex.foreach{ case (d,i) => ret(d)=i }
+    ret
+  }
+  
+  val solution = lexicographicPermutation(10,999999).mkString
+  println( s"Solution:$solution" )
+  
+  val solution2 = List(0,1,2,3,4,5,6,7,8,9).permutations.drop(999999).next
+  println( s"Solution2:$solution2" )
 }
