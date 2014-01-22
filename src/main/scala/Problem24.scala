@@ -37,17 +37,13 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
     val ret = Array.tabulate(digitSize)(i=>NODIGIT)
     
     for( d <- 0 until digitSize ){
-      //println( s"d:$d" )
       var pod = poisitionOfDigits(d)
-      //println( s"  pod:$pod" )
       var index = 0
       while( pod > 0 || ret(index) != NODIGIT ){
         if( ret(index) == NODIGIT ) pod -= 1
         index += 1
       }
-      //println( s"  index:$index" )
       ret(index) = d
-      //println( s"  ret:${ret.mkString(",")}" )
     }
     
     ret
