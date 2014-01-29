@@ -13,53 +13,29 @@ How many different ways can £2 be made using any number of coins?
 
   type Numero = Long
 
-  val coins = List(1,2,5,10,20,50,100,200).sorted.reverse
+  val coins = List(1,2,5,10,20,50,100,200)
   
-  object ways{
+  def compute( pences: Int ) = {
   
-    val cache = collection.mutable.Map[(Int,Int),Numero]()
-  
-    for( c <- coins ) cache((0,c)) = 1
-    
-    def apply( pences: Int, minCoin: Int ) : Numero = {
-      val key = (pences,minCoin)
-      if( pences < 0 ){
-        0
+    def compute( pences: Int, remainingCoins: List[Int] ): Numero = {
+      val ret = remainingCoins match{
+        case Nil => 
+          0L
+        case coin :: Nil => 
+          1L
+        case coin :: restOfCoins =>
+          (0 to pences/coin).map( n => compute( pences - n*coin, restOfCoins ) ).sum
       }
-      else if( cache.contains(key) ){
-        cache(key)
-      }
-      else{
-        cache(key) = computeWithCoinsBiggerThan(pences,minCoin)
-        cache(key)
-      }
+
+      ret
     }
-    
-    def compute( pences: Int, remainingCoins: Array ) = pences match{
-      case p < remainingCoins.head => 
-      
-    }
-    
-    def computeWithCoinsBiggerThan( pences: Int, minCoin: Int  ){
-      println( s"  compute: $pences $minCoin" )
-      val ret = for( c <- coins if coin >= minCoin ) yield{
-        for( n <- 0 to pences/c ) yield{
-          apply( pences-n*c, 
-        }
-      }
-      
-      
-      coins.filter( _ >= minCoin).map( c => apply(pences-c, minCoin) )
-      println( s"    compute: $pences -> ${ret.mkString(",")}" )
-      ret.sum
-    }
-    
+    compute(pences, coins.sorted.reverse)
   }
+    
   
   val amount = args(0).toInt
-  val solution = ways(amount, coins.max)
+  val solution = compute(amount)
   println( s"Solution:$solution" )
-    
 }
   
 
