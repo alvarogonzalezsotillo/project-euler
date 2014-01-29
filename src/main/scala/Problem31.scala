@@ -1,6 +1,6 @@
 import scala.annotation.tailrec
 
-object Problem30 extends App{
+object Problem31 extends App{
 /*
 In England the currency is made up of pound, £, and pence, p, and there are eight coins in general circulation:
 
