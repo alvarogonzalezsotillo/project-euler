@@ -1,0 +1,31 @@
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.10.3'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.6'
+}
+
+task srcZip(type: Zip) {
+  from projectDir
+  exclude 'build'
+  exclude '.gradle'
+}
+
+454.times{ problem ->
+  task "Problem$problem" (type: JavaExec, depensOn:[classes]){
+    main = "Problem$problem"
+    classpath = sourceSets.main.runtimeClasspath
+  }
+}
+
+
+

@@ -24,7 +24,16 @@ What is the sum of the numbers on the diagonals in a 1001 by 1001 spiral formed 
 38 17 16 15 14 13 30
 37 36 35 34 33 32 31  
 */
-  def 
+
+  type Numero = Long
+  
+  def pow( n: Numero, exp: Numero ) : Numero = if( exp == 0 ) 1 else n*pow(n,exp-1)
+  def sumDiagonalDown(m: Numero) = (m+1)*(m*m-m+3)/3
+  def sumDiagonalUp(m: Numero) = (4*m*m*m + 6*m*m + 8*m - 3*pow(-1,m) + 3)/12
+  
+  val size = 1001
+  val solution = sumDiagonalDown(size) + sumDiagonalUp(size) - 3
+  println( s"Solution: $solution" )
 
 }
   
