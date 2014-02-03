@@ -9,22 +9,39 @@ Find the sum of all products whose multiplicand/multiplier/product identity can 
 
 HINT: Some products can be obtained in more than one way so be sure to only include it once in your sum.
 */
+  
+  /*
+   
+    log ab = log a + log b
+    
+    log ab + log a + log b = 9
+    
+    log ab = 4.5
+    
+    0 < log a < 4.5 
+    
+    log b = 4.5 - log a
+   
+   */
 
+  def pow(b: Int, exp: Int) : Int = if(exp<=0) 1 else b*pow(b,exp-1)
+  def numDigits(n: Int) = n.toString.size
+  
+  val digits = 1 to 9
+  val maxA = Math.sqrt( pow(10,4) ).toInt + 1
+  
   def arePandigital( nums: Int* ) = {
-    val digits = nums.map( n => n.toString ).flatten
-    !digits.contains('0') && digits.size == 9 && digits.toSet.size == 9
+    val d = nums.map( n => n.toString ).flatten
+    !d.contains('0') && d.size == 9 && d.toSet.size == 9
   }
 
-  val digits = (1 to 9).toSet
-  
 
-  for( numDigitsA <- 1 to 5 ; 
-       numDigitsB = 9 - numDigitsA ;
-       a <- digits.combinations(numDigitsA).map( _.permutations ).flatten ;
-       b <- (digits - a).map( _.permutations ).flatten 
-       
-    
-  val solution = pandigitalProducts.toSet.sum
-  println( s"Solution:$solution" )  
+  val pandigitalProducts = for( a <- 1 to maxA ;
+       maxB = pow(10, 5-numDigits(a));
+       b <- 1 to maxB if( arePandigital(a,b,a*b) ) ) yield (a,b,a*b)
+  
+  
+  val solution = pandigitalProducts.map( _._3 ).toSet.sum
+  println( s"Solution:$solution \n ${pandigitalProducts.mkString("\n")}" )  
   
 }
