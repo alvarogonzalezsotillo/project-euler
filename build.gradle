@@ -14,9 +14,10 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.6'
 }
 
-task runSample(type: JavaExec, dependsOn:[classes]) {
-    main = 'samples.MultipleImagesPaneSample'
-    classpath = sourceSets.main.runtimeClasspath
+task srcZip(type: Zip) {
+  from projectDir
+  exclude 'build'
+  exclude '.gradle'
 }
 
 454.times{ problem ->
