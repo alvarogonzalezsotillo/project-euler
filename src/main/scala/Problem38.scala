@@ -19,8 +19,8 @@ What is the largest 1 to 9 pandigital 9-digit number that can be formed as the c
     s.size == 9 && !s.contains('0')
   }
   
-  def concatenatedProduct(n) : Stream[Int] = {
-    def concat( previous: Int, m: Int ) = {
+  def concatenatedProduct(n: Int) : Stream[Int] = {
+    def concat( previous: Int, m: Int ) : Stream[Int] = {
       val next = n*m
       (previous.toString + next.toString).toInt #:: concat( next, m+1)
     }
@@ -31,5 +31,5 @@ What is the largest 1 to 9 pandigital 9-digit number that can be formed as the c
   
   val pandigitals = Stream.from(1).filter(isPandigitalGenerator).takeWhile(_!=987654321)
   
-  println( s"$pandigitals" )
+  println( s"$pandigitals" )  
 }
