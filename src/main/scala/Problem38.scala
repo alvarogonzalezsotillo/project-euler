@@ -13,4 +13,23 @@ The same can be achieved by starting with 9 and multiplying by 1, 2, 3, 4, and 5
 What is the largest 1 to 9 pandigital 9-digit number that can be formed as the concatenated product of an integer with (1,2, ... , n) where n > 1?
 
 */
+
+  def isPandigital(n: Int) = {
+    val s = n.toString.toSet
+    s.size == 9 && !s.contains('0')
+  }
+  
+  def concatenatedProduct(n) : Stream[Int] = {
+    def concat( previous: Int, m: Int ) = {
+      val next = n*m
+      (previous.toString + next.toString).toInt #:: concat( next, m+1)
+    }
+    n #:: concat(n, 2)
+  }
+  
+  def isPandigitalGenerator(n: Int) = concatenatedProduct(n).takeWhile(_<1000000000).exists(isPandigital)
+  
+  val pandigitals = Stream.from(1).filter(isPandigitalGenerator).takeWhile(_!=987654321)
+  
+  println( s"$pandigitals" )
 }
