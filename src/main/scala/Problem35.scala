@@ -41,7 +41,6 @@ How many circular primes are there below one million?
   
   
   println( s"Number of primesBelowTenMillion: ${primesBelowTenMillion.size}")
-  println( s"Rotations: ${rotations(1234567890)}")
   
   def isCircular(p: Numero) = rotations(p).forall( primesBelowTenMillion.contains(_) )
   
