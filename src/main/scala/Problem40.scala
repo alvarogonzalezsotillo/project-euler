@@ -1,3 +1,5 @@
+import scala.collection.immutable.Stream.consWrapper
+
 object Problem40 extends App {
   /*
    An irrational decimal fraction is created by concatenating the positive integers:
