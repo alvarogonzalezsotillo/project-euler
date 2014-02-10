@@ -32,6 +32,6 @@ Using words.txt (right click and 'Save Link/Target As...'), a 16K text file cont
   }
   def isTriangular(t: Int) = triangulars.takeWhile(_<=t).last == t
 
-  val solution = wordsNumber.filter(isTriangular).size
+  val solution = wordsNumber.count(isTriangular)
   println( s"Solution:$solution")
 }
