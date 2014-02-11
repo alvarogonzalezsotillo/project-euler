@@ -32,12 +32,10 @@ object Problem454 extends App{
 
     @tailrec
     def pf( n: Numero, primesFrom: Stream[Numero], accum : List[Numero] ) : List[Numero] = n match {
-      case 0 => accum
       case 1 => accum
       case _ =>
         val nextPrimes = primesFrom.dropWhile( p => n % p != 0 )
         val factor = nextPrimes.head
-        println( factor )
         pf( n/factor, nextPrimes, factor :: accum )
     }
 
