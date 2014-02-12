@@ -15,8 +15,8 @@ It turns out that the conjecture was false.
 What is the smallest odd composite that cannot be written as the sum of a prime and twice a square?
 */
 
+  val ini = System.currentTimeMillis
   type Numero = Long
-
 
   lazy val primes: Stream[Numero] = {
     def next(p: Numero): Stream[Numero] = {
@@ -45,15 +45,12 @@ What is the smallest odd composite that cannot be written as the sum of a prime 
     ( 1 #:: next(3) ).filter( !isPrime(_) )
   }
   
-  def conjeture( n: Numero ) = {
-    println( s"Conjeture: $n" )
-    val primesToTest = primes.takeWhile(_<n)
-    primesToTest.exists{ p => 
-      doubleSquares.takeWhile( _ + p <= n ).last + p == n
-    }
+  def conjeture( n: Numero ) = primes.takeWhile(_<n).exists{ p => 
+    doubleSquares.takeWhile( _ + p <= n ).last + p == n
   }
+
   
   val solution = oddNotPrimes.find( !conjeture(_) ) 
   println( s"Solution: $solution" )
-
+  println( s"ms:${System.currentTimeMillis-ini}" )
 }
