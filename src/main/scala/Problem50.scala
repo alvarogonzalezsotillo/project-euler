@@ -19,7 +19,6 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
   lazy val primes: Stream[Numero] = {
     def next(p: Numero): Stream[Numero] = {
 
-      @tailrec
       def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
 
       val np = nextPrime(p + 1)
