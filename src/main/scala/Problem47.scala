@@ -15,6 +15,10 @@ The first three consecutive numbers to have three distinct prime factors are:
 Find the first four consecutive integers to have four distinct prime factors. What is the first of these numbers?
 */
 
+  val ini = System.currentTimeMillis
+
+  type Numero = Long
+
   lazy val primes: Stream[Numero] = {
     def next(p: Numero): Stream[Numero] = {
 
@@ -23,7 +27,6 @@ Find the first four consecutive integers to have four distinct prime factors. Wh
         ret.head * ret.head > n
       }
 
-      @tailrec
       def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
 
       val np = nextPrime(p + 1)
@@ -33,33 +36,32 @@ Find the first four consecutive integers to have four distinct prime factors. Wh
     2 #:: 3 #:: next(3)
   }
 
-  def primeFactors( n: Numero ): Map[Numero, Numero] = {
-    def pf( n: Numero, primesFrom: Stream[Numero], accum : List[Numero] ) : List[Numero] = n match {
-      case 1 => accum
-      case _ =>
-        val nextPrimes = primesFrom.dropWhile( p => n % p != 0 )
-        val factor = nextPrimes.head
-        pf( n/factor, nextPrimes, factor :: accum )
+  def primeFactorsSize( n: Numero ) = {
+    def pf( n: Numero, primesFrom: Stream[Numero], accum : Int ) : Int = {
+      val nextPrimes = primesFrom.dropWhile( p => n % p != 0 && p <= n)
+      val factor = nextPrimes.head
+      if( factor > n )
+        accum
+      else
+        pf( n/factor, nextPrimes.tail, accum+1 )
     }
 
-    val factors = pf( n, primes, Nil )
-    factors.groupBy(n => n).mapValues(_.size.asInstanceOf[Numero])
+    pf( n, primes, 0 )
   }
   
-  def find( totalToFind: Int, currentFound: Int, candidate: Numero ) : Seq[Numero]= {
-    if( primeFactors(candidate).size == totalToFind ){
-      if( currentFound == totalToFind-1 ){
-        candidate-totalToFind+1 to candidate
-      }
-      else{
-        find( totalToFind, currentFound+1, candidate+1 )
-      }
+  def findSolution(totalToFind: Int) = {
+    def find( currentFound: Int, candidate: Numero ) : Seq[Numero]= {
+      if( currentFound == totalToFind )
+        candidate-totalToFind until candidate
+      else if( primeFactorsSize(candidate) == totalToFind )
+        find( currentFound+1, candidate+1 )
+      else
+        find( 0, candidate+1)
     }
-    else{
-      find( totalToFind, 0, candidate+1)
-    }
+    find(0,1)
   }
   
-  println( find(2,0,1) )
+  println( findSolution(4) )
+  println( s"millis: ${System.currentTimeMillis-ini}")
 
 }
