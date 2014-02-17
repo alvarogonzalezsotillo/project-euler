@@ -28,20 +28,28 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
     2 #:: 3 #:: next(3)
   }
   
-  def isPrime(n: Numero) = {
+  def isPrime(n: Numero) : Boolean = {
     val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
     ret.head * ret.head > n
   }
   
-  
   val limit = 1000000
-  val primeNumbers = primes.takeWhile(_<limit)
+  val primeNumbers = primes.takeWhile(_<=limit)
+  val primeNumbersReversed = primeNumbers.reverse.toArray
   
-  val candidates = for( size <- 2 to primeNumbers.size ;
-                        candidate <- primeNumbers.sliding(size) ;
-                        if( isPrime(candidate.sum) ) )
-                        yield candidate
-                        
-  println( s"candidates:$candidates" )                        
+  
+  lazy val candidates = for( size <- (2 to primeNumbers.size).view ) yield {
+    val candidate = primeNumbersReversed.
+                    sliding(size).
+                    dropWhile( _.sum >= limit ).
+                    find( c => isPrime(c.sum) )
 
+    println( s"size:$size -> $candidate -> ${(candidate getOrElse Array()).sum}" )
+    candidate
+  }
+
+  println( s"candidates:${candidates.mkString("\n")}" )                        
+                        
+
+  // no es 92951
 }
