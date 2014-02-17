@@ -17,12 +17,6 @@ What 12-digit number do you form by concatenating the three terms in this sequen
   lazy val primes: Stream[Numero] = {
     def next(p: Numero): Stream[Numero] = {
 
-      def isPrime(n: Numero) = {
-        val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
-        ret.head * ret.head > n
-      }
-
-      @tailrec
       def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
 
       val np = nextPrime(p + 1)
@@ -32,16 +26,23 @@ What 12-digit number do you form by concatenating the three terms in this sequen
     2 #:: 3 #:: next(3)
   }
   
+  def isPrime(n: Numero) = {
+    val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
+    ret.head * ret.head > n
+  }
+  
   val fourDigitsPrimes = primes.dropWhile(_<1000).takeWhile(_<10000)
   
-  def check( step: Int ) = {
-    def c( p: Stream[Numero], n: Int ) : Boolean = 
-      if( n == 4 ) 
-        true
-      else
-           
-      
+  def check( p: Numero ) : Option[IndexedSeq[Numero]] = {
+    val perms = p.toString.permutations.map( _.toLong )
+    val permsPrimes = perms.filter(isPrime).toIndexedSeq.sorted
+    if( p == 1487 ) println( s"$permsPrimes" )
+    permsPrimes.sliding(3).filter(_.size==3).find( c => c(1) - c(0) == c(2)-c(1) )
   }
+  
+  val candidates = fourDigitsPrimes.map( check ).filter( _.isDefined )
+  
+  println( s"${candidates.take(300).toList}" )
   
   
 
