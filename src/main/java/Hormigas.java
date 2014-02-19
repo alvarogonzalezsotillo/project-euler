@@ -28,7 +28,7 @@ class Main
 		}
 	}
 
-	private static int solucionaMaximo(int longitud, int hormigas[])
+	private static int solucionaMaximo_lento(int longitud, int hormigas[])
 	{
 		double mitad = 1. * longitud / 2;
 		int hormigasSimuladas[] = new int[hormigas.length];
@@ -57,10 +57,15 @@ class Main
 
 			for (int h1 = 0; h1 < hormigasSimuladas.length; h1++)
 			{
-				for (int h2 = h1+1; h2 < hormigasSimuladas.length; h2++)
+				for (int h2 = h1 + 1; h2 < hormigasSimuladas.length; h2++)
 				{
-					boolean cruce = nextHormigasSimuladas[h1] < nextHormigasSimuladas[h2] &&
-									hormigasSimuladas[h1] > nextHormigasSimuladas[h2];
+					boolean cruce = (nextHormigasSimuladas[h1] < nextHormigasSimuladas[h2] &&
+									hormigasSimuladas[h1] > nextHormigasSimuladas[h2]) ||
+
+									(nextHormigasSimuladas[h1] > nextHormigasSimuladas[h2] &&
+									hormigasSimuladas[h1] < nextHormigasSimuladas[h2]);
+
+
 
 					boolean toque = nextHormigasSimuladas[h1] == nextHormigasSimuladas[h2];
 
@@ -89,8 +94,15 @@ class Main
 					hormigaEnElPalo = true;
 				}
 			}
-
-			System.err.println("Paso " + pasos + " --> " + Arrays.asList(hormigasSimuladas));
+			
+			{
+				System.err.print("Paso " + pasos + "  --> " );
+				for (int h = 0; h < hormigasSimuladas.length; h++)
+				{
+					System.err.print(hormigasSimuladas[h] + "  ");
+				}
+				System.err.println();
+			}
 		}
 
 		return pasos;
@@ -99,7 +111,7 @@ class Main
 	private static void soluciona(int longitud, int hormigas[])
 	{
 		int minimo = solucionaMinimo(longitud, hormigas);
-		int maximo = solucionaMaximo(longitud, hormigas);
+		int maximo = solucionaMaximo_lento(longitud, hormigas);
 		System.out.println(minimo + " " + maximo);
 	}
 
