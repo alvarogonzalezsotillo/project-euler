@@ -36,26 +36,44 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
   val limit = 1000000
   println( "Computing primes..." )
   val primeNumbers = primes.takeWhile(_<=limit)
-  val primeNumbersReversed = primeNumbers.reverse.toArray
+  val primeNumbersReversed = primeNumbers.reverse.map( BigInt(_) ).toArray
   val bitmap = Array.ofDim[Boolean](limit)
   
   println( "Computing bitmap..." )
   primeNumbers.foreach( n => bitmap(n.toInt) = true )
   def isPrime( n: Numero ) = bitmap(n.toInt)
-  
-  
-  lazy val candidates = for( size <- (2 to primeNumbers.size).view ) yield {
-    val candidate = primeNumbersReversed.
-                    sliding(size).
-                    map( c => (c,c.sum) ).  
-                    dropWhile( _._2 >= limit ).
-                    find( c => isPrime(c._2) ).
-                    map( _._1 )
+  def isPrime( n: BigInt ) = bitmap(n.toInt)
 
-    println( s"size:$size -> ${(candidate getOrElse Array()).mkString(",")} -> ${(candidate getOrElse Array()).sum}" )
-    candidate
+  def firstPrimeSum( primes: Array[BigInt], size: Int ) : Option[Array[BigInt]] = {
+    var ini = 0
+    var end = size-1
+    var sum = primes.slice(ini,size).sum
+    println( s"size:$size  ini:$ini end:$end sum:$sum" )
+    println( s"  slice:${primes.slice(ini,size).toList}" )
+
+    while( (sum >= limit || !isPrime(sum)) && primes.size > ini+size ){
+      sum -= primes(ini)
+      sum += primes(ini+size)
+      ini += 1
+      
+      println( s"  ini:$ini sum:$sum" )
+    }
+    
+    if( isPrime(sum) ) Some(primes.slice(ini,size)) else None
   }
+  
 
+  val candidates = for( size <- (2 to primeNumbersReversed.size) ) yield{
+    val yi = firstPrimeSum(primeNumbersReversed,size)
+    println( s"$size -> " + (
+      yi match{
+        case Some(p) => p.mkString(",") + " --> " + p.sum
+        case None => ""
+      } ) )
+      
+    yi
+  }
+  
   println( s"candidates:${candidates.mkString("\n")}" )                        
                         
 
