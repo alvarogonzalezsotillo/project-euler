@@ -33,7 +33,7 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
     2 #:: 3 #:: next(3)
   }
   
-  val limit = 1000000
+  val limit = 100
   println( "Computing primes..." )
   val primeNumbers = primes.takeWhile(_<=limit)
   val primeNumbersReversed = primeNumbers.reverse.map( BigInt(_) ).toArray
@@ -41,8 +41,8 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
   
   println( "Computing bitmap..." )
   primeNumbers.foreach( n => bitmap(n.toInt) = true )
-  def isPrime( n: Numero ) = bitmap(n.toInt)
-  def isPrime( n: BigInt ) = bitmap(n.toInt)
+  def isPrime( n: Numero ) : Boolean = if( n >= 0 && n < bitmap.size) bitmap(n.toInt) else false
+  def isPrime( n: BigInt ) : Boolean = isPrime(n.toLong)
 
   def firstPrimeSum( primes: Array[BigInt], size: Int ) : Option[Array[BigInt]] = {
     var ini = 0
@@ -51,30 +51,32 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
     println( s"size:$size  ini:$ini end:$end sum:$sum" )
     println( s"  slice:${primes.slice(ini,size).toList}" )
 
-    while( (sum >= limit || !isPrime(sum)) && primes.size > ini+size ){
+    println( s"  ${!isPrime(sum)}  ${primes.size > ini+size}" )
+    while( !isPrime(sum) && primes.size > ini+size ){
       sum -= primes(ini)
       sum += primes(ini+size)
       ini += 1
+      println( s"  sum:$sum ini:$ini" )
+      println( s"  ${!isPrime(sum)}  ${primes.size > ini+size}" )
       
-      println( s"  ini:$ini sum:$sum" )
     }
-    
+    println( s"  $ini  $sum" )
     if( isPrime(sum) ) Some(primes.slice(ini,size)) else None
   }
   
 
-  val candidates = for( size <- (2 to primeNumbersReversed.size) ) yield{
+  val candidates = for( size <- (2 to primeNumbersReversed.size) if(size%2==1) ) yield{
     val yi = firstPrimeSum(primeNumbersReversed,size)
     println( s"$size -> " + (
       yi match{
         case Some(p) => p.mkString(",") + " --> " + p.sum
-        case None => ""
+        case None => "(none)"
       } ) )
       
     yi
   }
   
-  println( s"candidates:${candidates.mkString("\n")}" )                        
+  println( s"candidates:${candidates.map( _.map(_.mkString("\n")))}" )
                         
 
   // no es 92951
