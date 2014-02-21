@@ -12,17 +12,14 @@ The longest sum of consecutive primes below one-thousand that adds to a prime, c
 Which prime, below one-million, can be written as the sum of the most consecutive primes?
 */
 
+  val ini = System.currentTimeMillis
 
- type Numero = Long
+  type Numero = Long
 
 
   lazy val primes: Stream[Numero] = {
     def next(p: Numero): Stream[Numero] = {
 
-      def isPrime(n: Numero) : Boolean = {
-        val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
-        ret.head * ret.head > n
-      }
 
       def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
 
@@ -33,51 +30,58 @@ Which prime, below one-million, can be written as the sum of the most consecutiv
     2 #:: 3 #:: next(3)
   }
   
-  val limit = 100
+  def isPrime(n: Numero) : Boolean = {
+    val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
+    ret.head * ret.head > n
+  }
+
+  
+  val limit = 1000000
   println( "Computing primes..." )
   val primeNumbers = primes.takeWhile(_<=limit)
-  val primeNumbersReversed = primeNumbers.reverse.map( BigInt(_) ).toArray
-  val bitmap = Array.ofDim[Boolean](limit)
+  val primeNumbersReversed = primeNumbers.reverse.toArray
   
-  println( "Computing bitmap..." )
-  primeNumbers.foreach( n => bitmap(n.toInt) = true )
-  def isPrime( n: Numero ) : Boolean = if( n >= 0 && n < bitmap.size) bitmap(n.toInt) else false
-  def isPrime( n: BigInt ) : Boolean = isPrime(n.toLong)
+  //println( "Computing bitmap..." )
+  //val bitmap = Array.ofDim[Boolean](limit)
+  //primeNumbers.foreach( n => bitmap(n.toInt) = true )
+  //def isPrime( n: Numero ) = if( n >= 0 && n < bitmap.size) bitmap(n.toInt) else false
 
-  def firstPrimeSum( primes: Array[BigInt], size: Int ) : Option[Array[BigInt]] = {
+  def firstPrimeSum( primes: Array[Numero], size: Int ) = {
     var ini = 0
-    var end = size-1
-    var sum = primes.slice(ini,size).sum
-    println( s"size:$size  ini:$ini end:$end sum:$sum" )
-    println( s"  slice:${primes.slice(ini,size).toList}" )
+    var sum = primes.slice(ini,ini+size).sum
+    
+    def found = isPrime(sum) && sum < limit
 
-    println( s"  ${!isPrime(sum)}  ${primes.size > ini+size}" )
-    while( !isPrime(sum) && primes.size > ini+size ){
+    while( !found && primes.size > ini+size ){
       sum -= primes(ini)
       sum += primes(ini+size)
       ini += 1
-      println( s"  sum:$sum ini:$ini" )
-      println( s"  ${!isPrime(sum)}  ${primes.size > ini+size}" )
-      
     }
-    println( s"  $ini  $sum" )
-    if( isPrime(sum) ) Some(primes.slice(ini,size)) else None
+    if( found ) Some(primes.slice(ini,ini+size)) else None
   }
   
+  println( "Computing maxSize..." )
+  val maxSize = {
+    def m(s: Int, primes: Stream[Numero] = primeNumbers,acum:Numero = 0) : Int = {
+      if( acum < limit ) 
+        m(s+1,primes.tail,acum+primes.head) 
+      else
+        s
+    }
+    m(1)
+  }
 
-  val candidates = for( size <- (2 to primeNumbersReversed.size) if(size%2==1) ) yield{
-    val yi = firstPrimeSum(primeNumbersReversed,size)
-    println( s"$size -> " + (
-      yi match{
-        case Some(p) => p.mkString(",") + " --> " + p.sum
-        case None => "(none)"
-      } ) )
-      
-    yi
+  println( s"maxSize:$maxSize" )
+  val candidates = for( size <- (maxSize to 2 by -1).view ) yield{
+    firstPrimeSum(primeNumbersReversed,size)
   }
   
-  println( s"candidates:${candidates.map( _.map(_.mkString("\n")))}" )
-                        
+  val firstCandidate = candidates.filter( !_.isEmpty ).map(_.get).head
+  println( s"firstCandidate:${firstCandidate.mkString(",")}" )
+  println( s"firstCandidate:${firstCandidate.sum} (997651)" )
+ 
+  println( s"millis:${System.currentTimeMillis - ini}" )                       
 
   // no es 92951
+  // 997651
 }
