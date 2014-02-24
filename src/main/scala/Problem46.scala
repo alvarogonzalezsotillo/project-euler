@@ -45,7 +45,7 @@ What is the smallest odd composite that cannot be written as the sum of a prime 
     ( 1 #:: next(3) ).filter( !isPrime(_) )
   }
   
-  def conjeture( n: Numero ) = primes.takeWhile(_<n).exists{ p => 
+  def conjeture( n: Numero ) = primes.takeWhile(_<n).exists{ p =>
     doubleSquares.takeWhile( _ + p <= n ).last + p == n
   }
 

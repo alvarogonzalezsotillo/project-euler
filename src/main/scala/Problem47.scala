@@ -15,6 +15,8 @@ The first three consecutive numbers to have three distinct prime factors are:
 Find the first four consecutive integers to have four distinct prime factors. What is the first of these numbers?
 */
 
+  type Numero = Long
+
   lazy val primes: Stream[Numero] = {
     def next(p: Numero): Stream[Numero] = {
 
@@ -23,7 +25,6 @@ Find the first four consecutive integers to have four distinct prime factors. Wh
         ret.head * ret.head > n
       }
 
-      @tailrec
       def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
 
       val np = nextPrime(p + 1)
