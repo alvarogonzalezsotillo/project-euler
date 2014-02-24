@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.Scanner;
 /**
  * http://muchoporprogramar.wordpress.com/2014/02/17/hormigas-itinerantes/
  */
@@ -7,27 +7,13 @@ class Main
 
 	private static int solucionaMinimo(int longitud, int hormigas[])
 	{
-		double mitad = 1. * longitud / 2;
-		int hormigaMasCercanaAMitad = 0;
-		for (int h = 0; h < hormigas.length; h++)
-		{
-			if (Math.abs(mitad - hormigas[h]) < Math.abs(mitad - hormigas[hormigaMasCercanaAMitad]))
-			{
-				hormigaMasCercanaAMitad = h;
-			}
-		}
-
-		int posicionHormigaCercanaAMitad = hormigas[hormigaMasCercanaAMitad];
-
-		System.err.println("phcam:" + posicionHormigaCercanaAMitad + " hmcam:" + hormigaMasCercanaAMitad);
-
-		if (posicionHormigaCercanaAMitad > mitad)
-		{
-			return longitud - posicionHormigaCercanaAMitad;
-		}
-		else{
-			return posicionHormigaCercanaAMitad;
-		}
+        double distanciaMasGrandeAExtremo = 0;
+        for (int h = 0; h < hormigas.length; h++)
+        {
+            double distanciaMasCortaAExtremoDeHormiga = Math.min(hormigas[h],longitud-hormigas[h]);
+            distanciaMasGrandeAExtremo = Math.max(distanciaMasGrandeAExtremo, distanciaMasCortaAExtremoDeHormiga);
+        }
+        return (int)distanciaMasGrandeAExtremo;
 	}
 
 	private static int solucionaMaximo(int longitud, int hormigas[])
