@@ -8,12 +8,31 @@ Find the smallest prime which, by replacing part of the number (not necessarily 
 */
 object Problem51 extends App{
 
-  type Numero = Long
-
-  def isPrime( n: Long ) = {
-    def isqrt( candidate: Long ) = {
-      if( candidate*candidate <
-    }
+  def measure[T]( msg: String )( proc: =>T ) = {
+    println( s"-->$msg" )
+    val ini = System.currentTimeMillis
+    val ret = proc
+    val end = System.currentTimeMillis
+    println( s"<--$msg: ${end-ini} ms" )
+    ret
   }
 
+  type Numero = Long
+
+  def isPrime( n: Numero ) = {
+  
+    def isqrt( n: Numero, candidate: Numero = 1 ) : Numero = {
+      if( candidate*candidate <= n && (candidate+1)*(candidate+1) > n )
+        candidate
+      else
+        isqrt(n,(n/candidate + candidate)/2)
+    }
+  
+    val sqrt = isqrt(n)
+    Iterator.from(2).takeWhile(_<=sqrt).find( p => n%p == 0 ).isEmpty
+  }
+
+  measure("test"){
+    Iterator.from(12345678).takeWhile(_<12349999).foreach( n => println( s"$n -> ${isPrime(n)}" ) )
+  }
 }
