@@ -8,7 +8,7 @@ Find the smallest prime which, by replacing part of the number (not necessarily 
 */
 object Problem51 extends App{
 
-  def measure[T]( msg: String )( proc: =>T ) = {
+  def measure[T]( msg: String = "" )( proc: =>T ) = {
     println( s"-->$msg" )
     val ini = System.currentTimeMillis
     val ret = proc
@@ -31,8 +31,65 @@ object Problem51 extends App{
     val sqrt = isqrt(n)
     Iterator.from(2).takeWhile(_<=sqrt).find( p => n%p == 0 ).isEmpty
   }
+  
+  lazy val primes: Stream[Numero] = {
+    def next(p: Numero): Stream[Numero] = {
+
+      def isPrime(n: Numero) = {
+        val ret = primes.dropWhile(p => p * p <= n && n % p != 0)
+        ret.head * ret.head > n
+      }
+
+      def nextPrime(v: Numero): Numero = if (isPrime(v)) v else (nextPrime(v + 1))
+
+      val np = nextPrime(p + 1)
+      np #:: next(np)
+    }
+
+    2 #:: 3 #:: next(3)
+  }
+
+  def check( digitSize: Int, familySize: Int ) = measure( s"check digitSize:$digitSize  familySize:$familySize" ){
+
+    val min = ("0"+"9"*(digitSize-1)).toLong + 1
+    val max = ("9"*digitSize).toLong
+
+  
+    def checkPrime( prime: Numero, changeSize: Numero ) = {
+    
+      val masks = (0 until digitSize).combinations(changeSize.toInt)
+      
+      def applyMask( mask: Seq[Int], digit: Int ) = {
+        val digits : Array[Int]= prime.toString.map(_.toInt-'0').toArray
+        mask.foreach( d => digits(d)=digit )
+        digits.mkString.toLong
+      }
+      
+      def familyOfMask( mask: Seq[Int] ) = {
+        val fullFamily = for( d <- 0 to 9 ) yield applyMask(mask,d)
+        fullFamily.filter(isPrime).filter(_.toString.size == digitSize)
+      }
+      
+      val validFamily = masks.map( familyOfMask ).find( _.size >= familySize )
+      if( !validFamily.isEmpty ){
+        println( s"    validFamily:$validFamily" )
+      }
+      !validFamily.isEmpty
+    }
+
+    def primesToCheck = primes.dropWhile(_<min).takeWhile(_<=max)
+    
+    def checks = for( prime <- primesToCheck; 
+                      changeSize <- (1 until digitSize).view ) yield{
+      checkPrime( prime, changeSize )
+    }
+    
+    checks.exists(b=>b)
+    
+  }  
 
   measure("test"){
-    Iterator.from(12345678).takeWhile(_<12349999).foreach( n => println( s"$n -> ${isPrime(n)}" ) )
+    val checks = for( digitSize <- (1 to 10).view ) yield check( digitSize, 8 )
+    checks.find( b => b )
   }
 }
