@@ -25,9 +25,13 @@ Para cada caso de prueba, el programa mostrará el número de dígitos a 0 conse
 
 public class CerosDeFactorial{
 
-  static class OpcionLenta{
-    public static int numeroDeFactores( int n, int factor ){
-      int ret = 0;
+  interface Solucion{
+    long numeroDeDiez( long from, long to );
+  }
+
+  static class OpcionLenta implements Solucion{
+    long numeroDeFactores( long n, long factor ){
+      long ret = 0;
       while( n % factor == 0 ){
         ret += 1;
         n /= factor;
@@ -35,57 +39,61 @@ public class CerosDeFactorial{
       return ret;
     }
     
-    public static int numeroDeFactores( int from, int to, int factor ){
+    long numeroDeFactores( long from, long to, long factor ){
       int ret = 0;
-      for( int n = from ; n <= to ; n++ ){
+      for( long n = from ; n <= to ; n++ ){
         ret += numeroDeFactores(n,factor);
       }
       return ret;
     }
     
-    public static int numeroDeDiez( int from, int to ){
-      int cincos = numeroDeFactores(from,to,5);
-      int doses = numeroDeFactores(from,to,2);
+    public long numeroDeDiez( long from, long to ){
+      long cincos = numeroDeFactores(from,to,5);
+      long doses = numeroDeFactores(from,to,2);
       return Math.min(cincos,doses);
     }
   }
   
-  private static long _potencias[];
   
-  static{
-      int maxExp = (int)(Math.log(Integer.MAX_VALUE)/Math.log(5))+1;
-      _potencias = new long[maxExp+1];
-      _potencias[0] = 1;
-      potenciaDeCinco(maxExp);
-  }
-  
-  public static long potenciaDeCinco( int exp ){
-    if( _potencias[exp] == 0 ){
-      _potencias[exp] = potenciaDeCinco(exp-1)*5;
-    }
-    return _potencias[exp];
-  }
-  
-  public static long numeroDeDiez( long from, long to ){
-  
-    int exp = 1;
-    long div = potenciaDeCinco(exp);
-    long ret = 0;
-    while( to >= div ){
-      ret += to/div;
-      exp = exp+1;
-      div = potenciaDeCinco(exp);
+  static class OpcionRapida implements Solucion{  
+    private long _potencias[];
+    
+    public OpcionRapida(){
+        int maxExp = (int)(Math.log(Integer.MAX_VALUE)/Math.log(5))+1;
+        _potencias = new long[maxExp+1];
+        _potencias[0] = 1;
+        potenciaDeCinco(maxExp);
     }
     
-    return ret;
+    long potenciaDeCinco( int exp ){
+      if( _potencias[exp] == 0 ){
+        _potencias[exp] = potenciaDeCinco(exp-1)*5;
+      }
+      return _potencias[exp];
+    }
+    
+    public long numeroDeDiez( long from, long to ){
+    
+      int exp = 1;
+      long div = potenciaDeCinco(exp);
+      long ret = 0;
+      while( to >= div ){
+        ret += to/div;
+        exp = exp+1;
+        div = potenciaDeCinco(exp);
+      }
+      
+      return ret;
+    }
   }
   
   public static void main(String args[]){
     Scanner in = new Scanner(System.in);
+    Solucion s = new OpcionRapida();
     int casos = in.nextInt();
     for( int c = 0 ; c < casos ; c++ ){
       long n = in.nextLong();
-      long solucion = numeroDeDiez(2,n);
+      long solucion = s.numeroDeDiez(2,n);
       System.out.println( solucion );
     }
   }
