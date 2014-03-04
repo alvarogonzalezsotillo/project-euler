@@ -50,11 +50,12 @@ public class CerosDeFactorial{
     }
   }
   
-  private static long _potencias[] = new long[1000];
+  private static long _potencias[];
   
   static{
-      _potencias[0] = 1;
       int maxExp = (int)(Math.log(Integer.MAX_VALUE)/Math.log(5))+1;
+      _potencias = new long[maxExp+1];
+      _potencias[0] = 1;
       potenciaDeCinco(maxExp);
   }
   
@@ -68,12 +69,12 @@ public class CerosDeFactorial{
   public static long numeroDeDiez( long from, long to ){
   
     int exp = 1;
-    long div = _potencias[exp];
+    long div = potenciaDeCinco(exp);
     long ret = 0;
     while( to >= div ){
       ret += to/div;
       exp = exp+1;
-      div = _potencias[exp];
+      div = potenciaDeCinco(exp);
     }
     
     return ret;
