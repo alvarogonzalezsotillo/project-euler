@@ -6,4 +6,30 @@ Considering natural numbers of the form, ab, where a, b < 100, what is the maxim
 */
 object Problem56 extends App{
 
+ def measure[T]( msg: String = "" )( proc: =>T ) = {
+    println( s"-->$msg" )
+    val ini = System.currentTimeMillis
+    val ret = proc
+    val end = System.currentTimeMillis
+    println( s"<--$msg: ${end-ini} ms" )
+    ret
+  }
+ 
+
+  type Numero = BigInt
+  
+  def sumsOfDigits( n: Numero, upToExp: Int ) = {
+    var power = BigInt(1) 
+    for( i <- 1 to upToExp ) yield {
+      power *= n
+      power.toString.map( _ - '0' ).sum
+    }
+  }
+ 
+  measure(){
+    val sums = (1 to 100).flatMap( sumsOfDigits(_,100) )
+    val solution = sums.max
+    println( s"Solution:$solution" )
+  }
+
 }
