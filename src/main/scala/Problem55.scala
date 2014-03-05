@@ -19,15 +19,15 @@ NOTE: Wording was modified slightly on 24 April 2007 to emphasise the theoretica
 */
 object Problem55 extends App{
   
-  def measure[T]( msg: String = "" )( proc: =>T ) = {
-    println( s"-->$msg" )
-    val ini = System.currentTimeMillis
-    val ret = proc
-    val end = System.currentTimeMillis
-    println( s"<--$msg: ${end-ini} ms" )
-    ret
-  }
-  
+    def measure[T]( msg: String = "" )( proc: =>T ) = {
+      println( s"-->$msg" )
+      val ini = System.currentTimeMillis
+      val ret = proc
+      val end = System.currentTimeMillis
+      println( s"<--$msg: ${end-ini} ms" )
+      ret
+    }
+    
   type Numero = BigInt
   implicit def toNumero(i: Int) : BigInt =BigInt(i)
   implicit def toNumero(i: String) : BigInt =BigInt(i)
