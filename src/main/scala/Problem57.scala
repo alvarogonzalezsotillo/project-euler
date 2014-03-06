@@ -17,17 +17,26 @@ In the first one-thousand expansions, how many fractions contain a numerator wit
 
 object Problem57 extends App{
   type Numero = Int
-  type Fraction = (Numero,Numero)
+
+  case class Fraction(val num:Numero, val den:Numero)
  
   
   def mcd( a: Numero, b: Numero ) : Numero = if( b == 0 ) a else mcd( b, a%b )
-  def mcm( a: Numero, b: Numero ) = a*b/mcd
+  def mcm( a: Numero, b: Numero ) = a*b/mcd(a,b)
   
   def sum( n: Numero, f: Fraction ) = {
-    val denominator = f._2
-    val numerator = n*denominator + f._1
-    simplify( (numerator,denominator) )
-  } 
+    val denominator = f.den
+    val numerator = n*denominator + f.num
+    simplify( Fraction(numerator,denominator) )
+  }
+
+  def simplify( f: Fraction ) = {
+    val m = mcd(f.num,f.den)
+    Fraction( f.num/m, f.den/m )
+  }
+
+
+  println( sum( 16, Fraction( 14, 2) ) )
   
     
 }
