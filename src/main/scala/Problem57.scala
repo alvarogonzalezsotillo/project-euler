@@ -25,7 +25,7 @@ object Problem57 extends App{
       val m = mcd(num,den)
       Fraction(num/m,den/m)
     }
-    def toString = s"$num/$den"
+    override def toString = s"$num/$den"
   }
   object Fraction{
     def apply( num: Numero, den: Numero ) = new Fraction(num,den)

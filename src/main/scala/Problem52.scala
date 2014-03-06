@@ -28,23 +28,32 @@ Find the smallest positive integer, x, such that 2x, 3x, 4x, 5x, and 6x, contain
 
   type Numero = Int
   
-  val starts = (1 to 6).map( d => s"1${d}" ).toSet
-  val sureDigits = (1 to 6).map( _.toString )
   
   
   def isSolution( n: Numero ) = {
-    val ns = digits( n )
-    
-    if( n % 1000000 == 0 ) println( s"...$ns" )
-   
-    def sameDigits( s1: Array[Int], s2: Array[Int] ) = s1.forall( c => s2.contains(c) ) && s2.forall( c => s1.contains(c) )
+    def sameDigits( na: Numero, nb: Numero ) = {
+      var digitsOfA,  digitsOfB  = 0
+      var sumA,  sumB  = 0
+      var a = na
+      var b = nb
+      while( a > 0 && b > 0 ){  
+        val digitA = a%10
+        val digitB = b%10
+        sumA += digitA
+        sumB += digitB
+        digitsOfA |= (1 << digitA)
+        digitsOfB |= (1 << digitB)
+        a /= 10
+        b /= 10
+      }
+      digitsOfA == digitsOfB && sumA == sumB && a == b
+    }
     
     def check( i: Numero = 2 ) : Boolean = {
       if( i == 7 ) 
         true
       else{
-        val s = digits( n*i )
-        sameDigits(ns,s) && check(i+1)
+        sameDigits(n,n*i) && check(i+1)
       }
     }
     
@@ -57,7 +66,7 @@ Find the smallest positive integer, x, such that 2x, 3x, 4x, 5x, and 6x, contain
     val ret = if( array == null || array.size != size ) new Array[Int](size) else array
     var remainder = n
     for( i <- 0 until size ){
-      ret(size-i-1) = remainder
+      ret(size-i-1) = remainder%10
       remainder /= 10
     }
     ret
