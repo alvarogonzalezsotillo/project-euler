@@ -16,25 +16,36 @@ In the first one-thousand expansions, how many fractions contain a numerator wit
 */
 
 object Problem57 extends App{
-  type Numero = Int
 
-  class Fraction(val num:Numero, val den:Numero){
-    def +( f: Fraction ) : Fraction = Fraction(num*f.den + f.num*den, den*f.den).simplify
-    def +( n: Numero ) : Fraction = this + Fraction(n,1)
-    def simplify = {
+  object Fraction{
+    def apply[T : Integral]( num: T, den: T ) : Fraction[T] = new Fraction(num,den)
+    def apply[T : Integral]( num: T ) : Fraction[T] = new Fraction(num, implicitly[Integral[T]].one)
+    implicit def toFraction[T : Integral](n:T) : Fraction[T] = Fraction.apply(n)
+    def one[T : Integral] = implicitly[Integral[T]].one
+  }
+
+  import Fraction._
+  import scala.math._
+  import Integral.Implicits._
+  class Fraction[T : Integral](val num:T, val den:T  ){
+  
+    type Self = Fraction[T]
+    
+    def mcd( a: T, b: T ) : T = if( b == 0 ) a else mcd( b, a%b )
+
+    def mcm( a: T, b: T ) = a*b/mcd(a,b)
+
+    def +( f: Self ) : Self = Fraction(num*f.den + f.num*den, den*f.den).simplify
+
+    def simplify : Self = {
       val m = mcd(num,den)
       Fraction(num/m,den/m)
     }
+    
     override def toString = s"$num/$den"
   }
-  object Fraction{
-    def apply( num: Numero, den: Numero ) = new Fraction(num,den)
-    implicit def toFraction(n:Numero) : Fraction = Fraction(n,1)
-  }
-  import Fraction._
+
    
-  def mcd( a: Numero, b: Numero ) : Numero = if( b == 0 ) a else mcd( b, a%b )
-  def mcm( a: Numero, b: Numero ) = a*b/mcd(a,b)
   
 
   println( 1 + Fraction(32,34) )
