@@ -19,10 +19,12 @@ object Problem57 extends App{
 
   object Fraction{
     def apply[T : Integral]( num: T, den: T ) : Fraction[T] = new Fraction(num,den)
-    def apply[T : Integral]( num: T ) : Fraction[T] = new Fraction(num, implicitly[Integral[T]].one)
-    implicit def toFraction[T : Integral](n:T) : Fraction[T] = Fraction.apply(n)
-    def one[T : Integral] = implicitly[Integral[T]].one
+    def apply[T : Integral]( num: T ) : Fraction[T] = new Fraction(num, oneScalar)
+    //implicit def toFraction[T : Integral](n:T) : Fraction[T] = Fraction.apply(n)
+    def oneScalar[T : Integral] = implicitly[Integral[T]].one
+    def oneFraction[T : Integral] = apply(oneScalar)
   }
+  
 
   import Fraction._
   import scala.math._
@@ -37,18 +39,43 @@ object Problem57 extends App{
 
     def +( f: Self ) : Self = Fraction(num*f.den + f.num*den, den*f.den).simplify
 
+    def +( n: T ) : Self = this + Fraction(n)
+    
+    def /( f: Self ): Self = Fraction(num*f.den, den*f.num).simplify
+
+    def /( n: T ): Self = this / Fraction(n)
+    
     def simplify : Self = {
       val m = mcd(num,den)
-      Fraction(num/m,den/m)
+      val ret = Fraction(num/m,den/m)
+      println( s"simplify $this  -> $ret" )
+      ret
     }
     
     override def toString = s"$num/$den"
   }
 
-   
+  def expand[T]( times: Int )(implicit num: Integral[T] ) = {
+    val one = oneFraction[T]
+    val two = num.fromInt(2)
+    val half = one / two
+    def expand0( times: Int, accum: Fraction[T] ) : Fraction[T] = {
+      if( times == 0 )
+        accum
+      else
+        expand0( times-1, one/( accum + two ) )
+    }
+    expand0( times, half ) + one
+  }
   
 
-  println( 1 + Fraction(32,34) )
+  println( Fraction(32,34))
+  println( Fraction(32,34) + 1)  
+  println( oneFraction[Int]/2 )
+  
+  for( t <- 0 to 10 ){
+    println( s"$t  -->  ${expand[Int](t)}" )
+  }
 
     
 }
