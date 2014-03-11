@@ -15,82 +15,86 @@ The next three expansions are 99/70, 239/169, and 577/408, but the eighth expans
 In the first one-thousand expansions, how many fractions contain a numerator with more digits than denominator?
 */
 
-object Problem57 extends App{
+object Problem57 extends App {
 
 
-  def measure[T]( msg: String = "" )( proc: =>T ) = {
-    println( s"-->$msg" )
+  def measure[T](msg: String = "")(proc: => T) = {
+    println(s"-->$msg")
     val ini = System.currentTimeMillis
     val ret = proc
     val end = System.currentTimeMillis
-    println( s"<--$msg: ${end-ini} ms" )
+    println(s"<--$msg: ${end - ini} ms")
     ret
   }
 
-  object Fraction{
-    def apply[T : Integral]( num: T, den: T ) : Fraction[T] = new Fraction(num,den)
-    def apply[T : Integral]( num: T ) : Fraction[T] = new Fraction(num, oneScalar)
+  object Fraction {
+    def apply[T: Integral](num: T, den: T): Fraction[T] = new Fraction(num, den)
+
+    def apply[T: Integral](num: T): Fraction[T] = new Fraction(num, oneScalar)
+
     //implicit def toFraction[T : Integral](n:T) : Fraction[T] = Fraction.apply(n)
-    def oneScalar[T : Integral] = implicitly[Integral[T]].one
-    def oneFraction[T : Integral] = apply(oneScalar)
+    def oneScalar[T: Integral] = implicitly[Integral[T]].one
+
+    def oneFraction[T: Integral] = apply(oneScalar)
   }
-  
+
 
   import Fraction._
   import scala.math._
   import Integral.Implicits._
-  class Fraction[T](val num:T, val den:T  )(implicit numT: Integral[T] ){
+
+  class Fraction[T](val num: T, val den: T)(implicit numT: Integral[T]) {
 
     type Self = Fraction[T]
-    
-    def mcd( a: T, b: T ) : T = if( b == 0 ) a else mcd( b, a%b )
 
-    def mcm( a: T, b: T ) = a*b/mcd(a,b)
+    def mcd(a: T, b: T): T = if (b == 0) a else mcd(b, a % b)
 
-    def +( f: Self ) : Self = Fraction(num*f.den + f.num*den, den*f.den).simplify
+    def mcm(a: T, b: T) = a * b / mcd(a, b)
 
-    private def +( n: T ) : Self = this + Fraction(n)
+    def +(f: Self): Self = Fraction(num * f.den + f.num * den, den * f.den).simplify
 
-    def +( n: Int ) : Self = this + numT.fromInt(n)
-
-    def /( f: Self ): Self = Fraction(num*f.den, den*f.num).simplify
-
-    private def /( n: T ): Self = this / Fraction(n)
-
-    def /( n: Int ): Self = this / numT.fromInt(n)
+    def +(n: T): Self = this + Fraction(n)
 
 
-    def simplify : Self = {
-      val m = mcd(num,den)
-      Fraction(num/m,den/m)
+    def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
+
+    def /(n: T): Self = this / Fraction(n)
+
+
+
+    def simplify: Self = {
+      val m = mcd(num, den)
+      Fraction(num / m, den / m)
     }
-    
+
     override def toString = s"$num/$den"
   }
 
 
-  def expand[T : Integral]( timesExpand: Int ) = {
+  def expand[T](timesExpand: Int)(implicit num: Integral[T]) = {
+
     val one = oneFraction[T]
-    val half = one / 2
-    def expand0( timesExpand: Int, accum: Fraction[T] ) : Fraction[T] = {
-      if( timesExpand == 0 )
+    val two = num.fromInt(2)
+    val half = one / two
+    def expand0(timesExpand: Int, accum: Fraction[T]): Fraction[T] = {
+      if (timesExpand == 0)
         accum
       else
-        expand0( timesExpand-1, one/( accum + 2 ) )
+        expand0(timesExpand - 1, one / (accum + two))
     }
-    expand0( timesExpand, half ) + one
-  }
-  
-
-  println( Fraction(32,34))
-  println( Fraction(32,34) + 1)  
-  println( oneFraction[Int]/2 )
-
-  measure(){
-    for( t <- 0 to 1000 ){
-      println( s"$t  -->  ${expand[BigInt](t)}" )
-    }
+    expand0(timesExpand, half) + one
   }
 
-    
+
+  println(Fraction(32, 34))
+  println(Fraction(32, 34) + 1)
+  println(oneFraction[Int] / 2)
+
+  measure() {
+    for (t <- 0 to 1000) {
+      println(s"$t  -->  ${expand[BigInt](t)}")
+    }
+  }
+
+
 }
