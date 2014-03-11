@@ -17,6 +17,16 @@ In the first one-thousand expansions, how many fractions contain a numerator wit
 
 object Problem57 extends App{
 
+
+  def measure[T]( msg: String = "" )( proc: =>T ) = {
+    println( s"-->$msg" )
+    val ini = System.currentTimeMillis
+    val ret = proc
+    val end = System.currentTimeMillis
+    println( s"<--$msg: ${end-ini} ms" )
+    ret
+  }
+
   object Fraction{
     def apply[T : Integral]( num: T, den: T ) : Fraction[T] = new Fraction(num,den)
     def apply[T : Integral]( num: T ) : Fraction[T] = new Fraction(num, oneScalar)
@@ -29,8 +39,8 @@ object Problem57 extends App{
   import Fraction._
   import scala.math._
   import Integral.Implicits._
-  class Fraction[T : Integral](val num:T, val den:T  ){
-  
+  class Fraction[T](val num:T, val den:T  )(implicit numT: Integral[T] ){
+
     type Self = Fraction[T]
     
     def mcd( a: T, b: T ) : T = if( b == 0 ) a else mcd( b, a%b )
@@ -39,42 +49,47 @@ object Problem57 extends App{
 
     def +( f: Self ) : Self = Fraction(num*f.den + f.num*den, den*f.den).simplify
 
-    def +( n: T ) : Self = this + Fraction(n)
-    
+    private def +( n: T ) : Self = this + Fraction(n)
+
+    def +( n: Int ) : Self = this + numT.fromInt(n)
+
     def /( f: Self ): Self = Fraction(num*f.den, den*f.num).simplify
 
-    def /( n: T ): Self = this / Fraction(n)
-    
+    private def /( n: T ): Self = this / Fraction(n)
+
+    def /( n: Int ): Self = this / numT.fromInt(n)
+
+
     def simplify : Self = {
       val m = mcd(num,den)
-      val ret = Fraction(num/m,den/m)
-      println( s"simplify $this  -> $ret" )
-      ret
+      Fraction(num/m,den/m)
     }
     
     override def toString = s"$num/$den"
   }
 
-  def expand[T]( times: Int )(implicit num: Integral[T] ) = {
+
+  def expand[T : Integral]( timesExpand: Int ) = {
     val one = oneFraction[T]
-    val two = num.fromInt(2)
-    val half = one / two
-    def expand0( times: Int, accum: Fraction[T] ) : Fraction[T] = {
-      if( times == 0 )
+    val half = one / 2
+    def expand0( timesExpand: Int, accum: Fraction[T] ) : Fraction[T] = {
+      if( timesExpand == 0 )
         accum
       else
-        expand0( times-1, one/( accum + two ) )
+        expand0( timesExpand-1, one/( accum + 2 ) )
     }
-    expand0( times, half ) + one
+    expand0( timesExpand, half ) + one
   }
   
 
   println( Fraction(32,34))
   println( Fraction(32,34) + 1)  
   println( oneFraction[Int]/2 )
-  
-  for( t <- 0 to 10 ){
-    println( s"$t  -->  ${expand[Int](t)}" )
+
+  measure(){
+    for( t <- 0 to 1000 ){
+      println( s"$t  -->  ${expand[BigInt](t)}" )
+    }
   }
 
     
