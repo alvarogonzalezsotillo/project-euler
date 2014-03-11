@@ -55,12 +55,9 @@ object Problem57 extends App {
 
     def +(n: T): Self = this + Fraction(n)
 
-
     def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
 
     def /(n: T): Self = this / Fraction(n)
-
-
 
     def simplify: Self = {
       val m = mcd(num, den)
@@ -72,17 +69,20 @@ object Problem57 extends App {
 
 
   def expand[T](timesExpand: Int)(implicit num: Integral[T]) = {
-
     val one = oneFraction[T]
     val two = num.fromInt(2)
     val half = one / two
-    def expand0(timesExpand: Int, accum: Fraction[T]): Fraction[T] = {
-      if (timesExpand == 0)
-        accum
-      else
-        expand0(timesExpand - 1, one / (accum + two))
+    def expand0(timesExpand: Int, accum: Fraction[T], ret: List[Fraction[T]]): List[Fraction[T]] = {
+      if (timesExpand == 0){
+        ret
+      }
+      else{
+        val nextValue = one / (accum + two)
+        val nextRet = accum :: ret
+        expand0(timesExpand - 1, nextValue, nextRet)
+      }
     }
-    expand0(timesExpand, half) + one
+    expand0(timesExpand, half, Nil)
   }
 
 
@@ -91,9 +91,9 @@ object Problem57 extends App {
   println(oneFraction[Int] / 2)
 
   measure() {
-    for (t <- 0 to 1000) {
-      println(s"$t  -->  ${expand[BigInt](t)}")
-    }
+    val expansions = expand[BigInt](10).map( _ + 1 )
+    val solution = expansions.count( f => f.num.toString.size > f.den.toString.size )
+    println( s"Solution: $solution" )
   }
 
 
