@@ -59,7 +59,7 @@ object Problem54 extends App{
   type Rank = Int
   
   object Rank{
-    val fromCharMap = Map( 'T' -> 10, 'J' -> 11, 'Q' ->12 , 'K' ->13, 'A'->14).withDefault( c => c - '0' )
+    val fromCharMap = Map( 'T' -> "10", 'J' -> "11", 'Q' ->"12" , 'K' ->"13", 'A'->"14").withDefault( c => "0" + c )
     def apply( c: Char ) = fromCharMap(c)
   }
   
@@ -73,9 +73,9 @@ object Problem54 extends App{
     
     def hasRank( rank: Rank ) = ! _cards.find( _.rank == rank ).isEmpty
     
-    def royalFlush() : Option[Rank]= {
+    def royalFlush() : Option[String]= {
       straightFlush match{
-        case Some(10) => Some(10)
+        case Some(10) => String "Arf14"
         case _ => None
       }
     }
