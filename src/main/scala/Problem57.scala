@@ -39,6 +39,7 @@ object Problem57 extends App {
 
 
   import Fraction._
+
   import scala.math._
   import Integral.Implicits._
 
