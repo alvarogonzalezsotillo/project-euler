@@ -18,9 +18,10 @@ In the first one-thousand expansions, how many fractions contain a numerator wit
 object Problem57 extends App{
   type Numero = Int
 
-  class Fraction(val num:Numero, val den:Numero){
-    def +( f: Fraction ) : Fraction = Fraction(num*f.den + f.num*den, den*f.den).simplify
-    def +( n: Numero ) : Fraction = this + Fraction(n,1)
+  class Fraction[N <: Numeric[T]](val num:N, val den:N ){
+    type Number = N
+    def +( f: Fraction ) : Fraction[N] = Fraction(num*f.den + f.num*den, den*f.den).simplify
+    def +( n: Numero ) : Fraction[N] = this + Fraction(n,1)
     def simplify = {
       val m = mcd(num,den)
       Fraction(num/m,den/m)
@@ -28,13 +29,13 @@ object Problem57 extends App{
     def toString = s"$num/$den"
   }
   object Fraction{
-    def apply( num: Numero, den: Numero ) = new Fraction(num,den)
-    implicit def toFraction(n:Numero) : Fraction = Fraction(n,1)
+    def apply[N <: Numeric[T]]( num: N, den: N ) = new Fraction(num,den)
+    implicit def toFraction[N <: Numeric[T]](n:N) : Fraction = Fraction(n,Numeric[T].one)
   }
   import Fraction._
    
-  def mcd( a: Numero, b: Numero ) : Numero = if( b == 0 ) a else mcd( b, a%b )
-  def mcm( a: Numero, b: Numero ) = a*b/mcd(a,b)
+  def mcd[N <: Numeric[T]]( a: N, b: N ) : Numero = if( b == 0 ) a else mcd( b, a%b )
+  def mcm[N <: Numeric[T]]( a: N, b: N ) = a*b/mcd(a,b)
   
 
   println( 1 + Fraction(32,34) )
