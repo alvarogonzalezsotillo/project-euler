@@ -32,7 +32,6 @@ object Problem57 extends App {
 
     def apply[T: Integral](num: T): Fraction[T] = new Fraction(num, oneScalar)
 
-    //implicit def toFraction[T : Integral](n:T) : Fraction[T] = Fraction.apply(n)
     def oneScalar[T: Integral] = implicitly[Integral[T]].one
 
     def oneFraction[T: Integral] = apply(oneScalar)
@@ -91,7 +90,7 @@ object Problem57 extends App {
   println(oneFraction[Int] / 2)
 
   measure() {
-    val expansions = expand[BigInt](10).map( _ + 1 )
+    val expansions = expand[BigInt](1000).map( _ + 1 )
     val solution = expansions.count( f => f.num.toString.size > f.den.toString.size )
     println( s"Solution: $solution" )
   }
