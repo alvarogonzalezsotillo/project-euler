@@ -40,6 +40,18 @@ object Problem58 extends App{
   def isPrime( n: Numero ) = {
     Iterator.from(2).takeWhile(_<=n.isqrt).forall( p => n%p != 0 )
   }
+  
+  def diagonal1(n: Numero) = 4*(n↑2) + 1
+  def diagonal2(n: Numero) = 4*(n↑2) - 10*n + 7
+  def diagonal3(n: Numero) = (2*n+1)↑2
+  def diagonal4(n: Numero) = 4*(n↑2) - 6*n + 3
+  
+  lazy val diagonalsOfSpiral : Stream[Numero] = {
+    def nextCycle( n: Numero ) : Stream[Numero] = {
+      diagonal1(n) #:: diagonal2(n) #:: diagonal3(n) #::diagonal4(n) #:: nextCycle(n+1)
+    }
+    1 #:: nextCycle(1)
+  }
 
   (1 to 30).foreach( n => println( s"n:$n ${isPrime(n)}" ) )
 
