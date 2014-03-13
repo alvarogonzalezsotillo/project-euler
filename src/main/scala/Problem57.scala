@@ -39,6 +39,7 @@ object Problem57 extends App {
 
 
   import Fraction._
+
   import scala.math._
   import Integral.Implicits._
 
@@ -54,12 +55,9 @@ object Problem57 extends App {
 
     def +(n: T): Self = this + Fraction(n)
 
-
     def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
 
-    def /[U](n: U)( implicit conv: U => T ): Self = this / Fraction(conv(n))
-
-
+    def /(n: T): Self = this / Fraction(n)
 
     def simplify: Self = {
       val m = mcd(num, den)
@@ -70,17 +68,21 @@ object Problem57 extends App {
   }
 
 
-  def expand[T](timesExpand: Int)(implicit num: Integral[T])= {
+  def expand[T](timesExpand: Int)(implicit num: Integral[T]) = {
     val one = oneFraction[T]
     val two = num.fromInt(2)
     val half = one / two
-    def expand0(timesExpand: Int, accum: Fraction[T]): Fraction[T] = {
-      if (timesExpand == 0)
-        accum
-      else
-        expand0(timesExpand - 1, one / (accum + two))
+    def expand0(timesExpand: Int, accum: Fraction[T], ret: List[Fraction[T]]): List[Fraction[T]] = {
+      if (timesExpand == 0){
+        ret
+      }
+      else{
+        val nextValue = one / (accum + two)
+        val nextRet = accum :: ret
+        expand0(timesExpand - 1, nextValue, nextRet)
+      }
     }
-    expand0(timesExpand, half) + one
+    expand0(timesExpand, half, Nil)
   }
 
 
@@ -89,11 +91,9 @@ object Problem57 extends App {
   println(oneFraction[Int] / 2)
 
   measure() {
-    for (t <- 0 to 1000) {
-      val e = expand[BigInt](t)
-      val criteria = e.num.toString.size - e.den.toString.size > 0
-      if( criteria ) println(s"$t  -->  $criteria --> ${e}")
-    }
+    val expansions = expand[BigInt](1000).map( _ + 1 )
+    val solution = expansions.count( f => f.num.toString.size > f.den.toString.size )
+    println( s"Solution: $solution" )
   }
 
 
