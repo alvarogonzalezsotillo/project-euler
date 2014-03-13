@@ -32,7 +32,6 @@ object Problem57 extends App {
 
     def apply[T: Integral](num: T): Fraction[T] = new Fraction(num, oneScalar)
 
-    //implicit def toFraction[T : Integral](n:T) : Fraction[T] = Fraction.apply(n)
     def oneScalar[T: Integral] = implicitly[Integral[T]].one
 
     def oneFraction[T: Integral] = apply(oneScalar)
@@ -58,7 +57,7 @@ object Problem57 extends App {
 
     def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
 
-    def /(n: T): Self = this / Fraction(n)
+    def /[U](n: U)( implicit conv: U => T ): Self = this / Fraction(conv(n))
 
 
 
@@ -71,8 +70,7 @@ object Problem57 extends App {
   }
 
 
-  def expand[T](timesExpand: Int)(implicit num: Integral[T]) = {
-
+  def expand[T](timesExpand: Int)(implicit num: Integral[T])= {
     val one = oneFraction[T]
     val two = num.fromInt(2)
     val half = one / two
@@ -92,7 +90,9 @@ object Problem57 extends App {
 
   measure() {
     for (t <- 0 to 1000) {
-      println(s"$t  -->  ${expand[BigInt](t)}")
+      val e = expand[BigInt](t)
+      val criteria = e.num.toString.size - e.den.toString.size > 0
+      if( criteria ) println(s"$t  -->  $criteria --> ${e}")
     }
   }
 
