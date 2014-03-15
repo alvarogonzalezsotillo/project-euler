@@ -1,3 +1,4 @@
+import scala.io.Source
 
 /*
 n the card game poker, a hand consists of five cards and are ranked, from lowest to highest, in the following way:
@@ -74,6 +75,8 @@ object Problem54 extends App {
 
     def apply(i: Int) = i ensuring valid _
 
+    def unapply(r: Rank) = Some(r)
+
     def toString(rank: Rank) = {
       assert(valid(rank))
       String.format("%02d", rank: Integer)
@@ -97,19 +100,19 @@ object Problem54 extends App {
 
     type Match = Option[Seq[Rank]]
 
-    def royalFlush(): Match = {
-      straightFlush match {
-        case Some(Seq(10)) => Some(Seq(14))
-        case _ => None
-      }
+    def matchToString( m: Match ) = m match{
+      case Some(s) => s.foldLeft("")((str, r) => str + Rank.toString(r) )
+      case None => ""
     }
 
-    def straightFlush: Match = {
-      val first = _cards.head
-      flush.isDefined && straight.isDefined match {
-        case true => Some(Seq(first.rank))
+    def royalFlush: Match =  straightFlush match {
+        case Some(Seq(Rank(10))) => Some(Seq(Rank(14)))
         case _ => None
-      }
+    }
+
+    def straightFlush: Match =  flush.isDefined && straight.isDefined match {
+        case true => Some(Seq(_cards.head.rank))
+        case _ => None
     }
 
     def straight: Match = {
@@ -134,9 +137,7 @@ object Problem54 extends App {
 
     def fourOfAKind = someOfAKind(4)
 
-    def fullHouse: Match = {
-      for (t3 <- threeOfAKind; t2 <- pair) yield t3 ++ t2
-    }
+    def fullHouse: Match = for (t3 <- threeOfAKind; t2 <- pair) yield t3 ++ t2
 
     def threeOfAKind = someOfAKind(3)
 
@@ -161,11 +162,7 @@ object Problem54 extends App {
 
     def describe = {
       val matches = Seq(royalFlush, straightFlush, fourOfAKind, fullHouse, flush, straight, threeOfAKind, twoPairs, pair, highest)
-
-      matches.zipWithIndex.foldLeft("")((ret, m) => m match {
-        case (Some(s), i) => ret + " " + ('Z' - i).toChar + s.foldLeft("")((str, r) => str + Rank.toString(r))
-        case _ => ret
-      })
+      matches.zipWithIndex.foldLeft("")((ret, m) => ret + " " + ('Z' - m._2).toChar + matchToString(m._1) )
     }
 
     def compare(that: Hand): Int = describe compare that.describe
@@ -174,43 +171,32 @@ object Problem54 extends App {
   }
 
   object Hand {
-    def apply(s: String) = new Hand(s.split(" ").map(Card.apply))
+    def apply(s: String) = new Hand(s.trim.split(" ").map(Card.apply))
+    def twoHands( line: String ) = {
+      val (h1,h2) = line.trim.splitAt( line.size/2 )
+      (Hand(h1), Hand(h2))
+    }
   }
 
-
-  val samples = Seq(
-    ("5H 5C 6S 7S KD", "2C 3S 8S 8D TD", true),
-    ("5D 8C 9S JS AC", "2C 5C 7D 8S QH", false),
-    ("2D 9C AS AH AC", "3D 6D 7D TD QD", true),
-    ("4D 6S 9H QH QC", "3D 6D 7H QD QS", false),
-    ("2H 2D 4C 4D 4S", "3C 3D 3S 9S 9D", false)
-  )
-
-  /*
+  val lines = Source.fromFile( "./src/main/scala/poker.txt" ).getLines()
+  val hands = lines.map(Hand.twoHands)
+  val solution = hands.count{ case (h1,h2) => h1 > h2 }
+  println( s"Solution: $solution" )
 
 
-  4
-    Pair of Queens
-  Highest card Nine
+  def test = {
+    val samples = Seq(
+      ("5H 5C 6S 7S KD 2C 3S 8S 8D TD", true),
+      ("5D 8C 9S JS AC 2C 5C 7D 8S QH", false),
+      ("2D 9C AS AH AC 3D 6D 7D TD QD", true),
+      ("4D 6S 9H QH QC 3D 6D 7H QD QS", false),
+      ("2H 2D 4C 4D 4S 3C 3D 3S 9S 9D", false)
+    )
 
-    Pair of Queens
-  Highest card Seven
-  Player 1
-
-
-  5
-  Full House
-    With Three Fours
-
-  Full House
-  with Three Threes
-    Player 1
-
-  */
-
-  for ((s1, s2, res) <- samples) {
-    val h1 = Hand(s1)
-    val h2 = Hand(s2)
-    println(s"$s1-->$h1    $s2-->$h2     ${h1 < h2 == res}")
+    for( (s, res) <- samples) {
+      val (h1,h2) = Hand.twoHands(s)
+      println(s"$s   $h1   $h2   ${h1 < h2 == res}")
+    }
   }
+
 }
