@@ -92,10 +92,20 @@ object Problem54 extends App {
   class Hand(cards: Seq[Card]) extends Ordered[Hand] {
     val _cards = cards.toArray.sortBy(_.rank)
 
-    lazy val kinds = _cards.groupBy(_.rank).map {
-      case (rank, cards) => (cards.size, rank)
-    }.toArray.sortBy {
-      case (size, rank) => rank
+    lazy val kinds = {
+      val groups = _cards.groupBy(_.rank)
+      val groupsBySize = groups.map {
+        case (rank, cards) => (cards.size, rank)
+      }
+      println( s"_cards: ${_cards.mkString(",")}" )
+      println( s"groups: ${groups.mkString(",")}" )
+      println( s"groupsBySize: ${groupsBySize.mkString(",")}" )
+      val ret = groups.toArray.sortBy {
+        case (size, rank) => -rank
+      }
+    
+      println( s"kinds: ${ret.mkString(",")}" )
+      ret
     }
 
     type Match = Option[Seq[Rank]]
@@ -141,12 +151,13 @@ object Problem54 extends App {
 
     def threeOfAKind = someOfAKind(3)
 
-    def twoPairs = {
-      val found = someOfAKind(2)
-      if (found.isEmpty || found.get.size < 2)
+    def twoPairs : Match = {
+      val found = findOfAKind(2)
+      println( s"twoPairs: ${found.mkString(",")}   kinds:${kinds.mkString(",")}" )
+      if (found.size < 2)
         None
       else
-        found
+        Some( found.map( _._2 ) )
     }
 
     def pair = someOfAKind(2)
@@ -160,9 +171,25 @@ object Problem54 extends App {
       }
     }
 
-    def describe = {
-      val matches = Seq(royalFlush, straightFlush, fourOfAKind, fullHouse, flush, straight, threeOfAKind, twoPairs, pair, highest)
-      matches.zipWithIndex.foldLeft("")((ret, m) => ret + " " + ('Z' - m._2).toChar + matchToString(m._1) )
+    lazy val describe = {
+      val matchesMap = Map(
+        "royalFlush" -> royalFlush,
+        "straightFlush" -> straightFlush,
+        "fourOfAKind"  -> fourOfAKind,
+        "fullHouse"  -> fullHouse,
+        "flush"  -> flush,
+        "straight"  -> straight,
+        "threeOfAKind"  -> threeOfAKind,
+        "twoPairs"  -> twoPairs,
+        "pair"  -> pair,
+        "highest"  -> highest
+      )
+      val priority = Seq("royalFlush", "straightFlush", "fourOfAKind", "fullHouse", "flush", "straight", "threeOfAKind", "twoPairs", "pair", "highest")
+      priority.zipWithIndex.foldLeft(""){(ret, p) => 
+        val name = p._1
+        val m = matchesMap(name)
+        ret + " " + ('Z' - p._2).toChar + matchToString(m)
+      }
     }
 
     def compare(that: Hand): Int = describe compare that.describe
@@ -178,8 +205,12 @@ object Problem54 extends App {
     }
   }
 
-  val lines = Source.fromFile( "./src/main/scala/poker.txt" ).getLines()
+  val lines = Source.fromFile( "./src/main/scala/poker.txt" ).getLines().toArray
   val hands = lines.map(Hand.twoHands)
+  for( ((h1,h2),l) <- hands.zip( lines ) ){
+    println( s"$l --> $h1  $h2 \t\t  h1 wins:${h1>h2}" )
+  }
+  
   val solution = hands.count{ case (h1,h2) => h1 > h2 }
   println( s"Solution: $solution" )
 
