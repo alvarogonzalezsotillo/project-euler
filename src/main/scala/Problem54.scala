@@ -68,15 +68,10 @@ object Problem54 extends App {
 
   object Rank {
     val fromCharMap = Map('T' -> 10, 'J' -> 11, 'Q' -> 12, 'K' -> 13, 'A' -> 14).withDefault(c => c - '0')
-
     def valid(rank: Rank) = rank >= 2 && rank <= 14
-
     def apply(c: Char) = fromCharMap(c) ensuring valid _
-
     def apply(i: Int) = i ensuring valid _
-
     def unapply(r: Rank) = Some(r)
-
     def toString(rank: Rank) = {
       assert(valid(rank))
       String.format("%02d", rank: Integer)
@@ -90,30 +85,19 @@ object Problem54 extends App {
   }
 
   class Hand(cards: Seq[Card]) extends Ordered[Hand] {
-    val _cards = cards.toArray.sortBy(_.rank)
+    val _cards = cards.toList.sortBy(-_.rank )
 
     lazy val kinds = {
-      val groups = _cards.groupBy(_.rank)
+      val groups = _cards.groupBy(_.rank).toList
       val groupsBySize = groups.map {
         case (rank, cards) => (cards.size, rank)
       }
-      println( s"_cards: ${_cards.mkString(",")}" )
-      println( s"groups: ${groups.mkString(",")}" )
-      println( s"groupsBySize: ${groupsBySize.mkString(",")}" )
-      val ret = groups.toArray.sortBy {
+      groupsBySize.toArray.sortBy {
         case (size, rank) => -rank
       }
-    
-      println( s"kinds: ${ret.mkString(",")}" )
-      ret
     }
 
     type Match = Option[Seq[Rank]]
-
-    def matchToString( m: Match ) = m match{
-      case Some(s) => s.foldLeft("")((str, r) => str + Rank.toString(r) )
-      case None => ""
-    }
 
     def royalFlush: Match =  straightFlush match {
         case Some(Seq(Rank(10))) => Some(Seq(Rank(14)))
@@ -153,7 +137,6 @@ object Problem54 extends App {
 
     def twoPairs : Match = {
       val found = findOfAKind(2)
-      println( s"twoPairs: ${found.mkString(",")}   kinds:${kinds.mkString(",")}" )
       if (found.size < 2)
         None
       else
@@ -172,23 +155,14 @@ object Problem54 extends App {
     }
 
     lazy val describe = {
-      val matchesMap = Map(
-        "royalFlush" -> royalFlush,
-        "straightFlush" -> straightFlush,
-        "fourOfAKind"  -> fourOfAKind,
-        "fullHouse"  -> fullHouse,
-        "flush"  -> flush,
-        "straight"  -> straight,
-        "threeOfAKind"  -> threeOfAKind,
-        "twoPairs"  -> twoPairs,
-        "pair"  -> pair,
-        "highest"  -> highest
-      )
-      val priority = Seq("royalFlush", "straightFlush", "fourOfAKind", "fullHouse", "flush", "straight", "threeOfAKind", "twoPairs", "pair", "highest")
-      priority.zipWithIndex.foldLeft(""){(ret, p) => 
-        val name = p._1
-        val m = matchesMap(name)
-        ret + " " + ('Z' - p._2).toChar + matchToString(m)
+      def matchToString( m: Match ) = m match{
+        case Some(s) => s.foldLeft("")((str, r) => str + Rank.toString(r) )
+        case None => ""
+      }
+
+      val priority = Seq(royalFlush, straightFlush, fourOfAKind, fullHouse, flush, straight, threeOfAKind, twoPairs, pair, highest)
+      priority.zipWithIndex.foldLeft(""){ case (ret, (p,i)) => 
+        ret + " " + ('Z' - i).toChar + matchToString(p)
       }
     }
 
@@ -207,27 +181,6 @@ object Problem54 extends App {
 
   val lines = Source.fromFile( "./src/main/scala/poker.txt" ).getLines().toArray
   val hands = lines.map(Hand.twoHands)
-  for( ((h1,h2),l) <- hands.zip( lines ) ){
-    println( s"$l --> $h1  $h2 \t\t  h1 wins:${h1>h2}" )
-  }
-  
   val solution = hands.count{ case (h1,h2) => h1 > h2 }
-  println( s"Solution: $solution" )
-
-
-  def test = {
-    val samples = Seq(
-      ("5H 5C 6S 7S KD 2C 3S 8S 8D TD", true),
-      ("5D 8C 9S JS AC 2C 5C 7D 8S QH", false),
-      ("2D 9C AS AH AC 3D 6D 7D TD QD", true),
-      ("4D 6S 9H QH QC 3D 6D 7H QD QS", false),
-      ("2H 2D 4C 4D 4S 3C 3D 3S 9S 9D", false)
-    )
-
-    for( (s, res) <- samples) {
-      val (h1,h2) = Hand.twoHands(s)
-      println(s"$s   $h1   $h2   ${h1 < h2 == res}")
-    }
-  }
-
+  println( s"Solution: $solution (376)" )
 }
