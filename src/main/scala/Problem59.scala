@@ -12,59 +12,70 @@ Your task has been made easy, as the encryption key consists of three lower case
 
 object Problem59 extends App{
 
-  type Letter = Int
+  type Letter = Char
   type Msg = Array[Letter]
-  type Passw = Array[Set[Letter]]
+  type Passw = Array[Array[Letter]]
   
-  val passwChars = ('a' to 'z').map(_.toInt).toSet 
+  val passwChars = (('a' to 'z').toArray) ++ ('A' to 'Z')
   
   def findPassw( msg: Msg, passwSize : Int = 3 ) : Passw = {
   
-    def isPossibleInMsg( c: Int ) = c.toChar.isLetter || c.toChar.isWhitespace
+    def isPossibleInMsg( c: Int ) ={
+      assert( c.isValidChar )
+      val ch = c.toChar
+      ch.isLetter || ch.isWhitespace || ".,:!?;&\n\r".contains(ch)
+    }
   
-    val candidates : Array[Set[Letter]] = Array.tabulate(msg.size){ i =>
-      passwChars.filter( c => isPossibleInMsg(c ^ msg(i)) ).toSet
+    val candidates : Array[Array[Letter]] = Array.tabulate(msg.size){ i =>
+      passwChars.filter( c => isPossibleInMsg(c ^ msg(i)) )
     }
     
+    /*
     for( i <- 0 until msg.size ){
-      println( s"Candidates for ${msg(i)} => ${candidates(i)}  ${candidates(i).map(_.toChar)}" )
-      candidates(i).foreach( c=> print( s" ${(msg(i)^c)}->${(msg(i)^c).toChar}" ) )
-      println()
+      println( s"Candidates for ${msg(i)} => ${candidates(i).mkString}" )
+      for( j <- passwChars ){
+        println( s"$j(${j.toInt}) & ${msg(i)}(${msg(i).toInt}) = ${(j ^ msg(i)).toChar}(${j ^ msg(i)})" )
+      }
     }
+    */
     
     val passw = for( i <- 0 until passwSize ) yield {
-      val chars : Iterator[Set[Letter]] = candidates.drop(i).sliding(1,passwSize).map( _(0) )
-      chars.reduce( _ & _ )
+      val chars : Iterator[Array[Letter]] = candidates.drop(i).sliding(1,passwSize).map( _(0) )
+      chars.reduce( _ intersect _ )
     }
     
     passw.toArray
   }
   
-  def decode( msg: Msg, passw : String ) = {
+  def decode( msg: Msg, passw : Passw ) = {
     val ret = for( i <- 0 until msg.size ) yield{
-      msg(i) ^ passw(i%passw.size)
+      msg(i) ^ passw(i%passw.size).iterator.next
     }
-    ret.toArray.mkString
+    ret.mkString
   }
   
   val values = scala.io.Source.fromFile( "./src/main/scala/cipher1.txt" ).
                getLines.
-               flatMap( l => l.split(",").map( _.toInt ) ).
+               flatMap( l => l.split(",").map( _.toInt.toChar ) ).
                toArray
                
-  println( s"values: ${values.mkString(",")}" )
+  println( s"values: ${values.map(_.toInt).mkString(",")}" )
   
-  try{
-    val passw = findPassw(values).map( _.mkString ).mkString
-    
-    println( s"passw: $passw" )
-    
-    val decoded = decode( values, passw )
-    println( s"decoded: $decoded" )
-  }
-  catch{
-    case t: Throwable => 
-      println( s"Error: $t" )
-      t.printStackTrace(System.out)
+  for( size <- 3 to 40 ){
+    try{
+      val passw = findPassw(values, size)
+      
+      val passwText = passw.map( _.mkString ).mkString
+      
+      println( s"passwText: $passwText" )
+      
+      val decoded = decode( values, passw )
+      println( s"decoded: $decoded" )
+    }
+    catch{
+      case t: Throwable => 
+        println( s"Error: $t" )
+        //t.printStackTrace(System.out)
+    }
   }
 }
