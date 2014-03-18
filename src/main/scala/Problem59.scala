@@ -20,16 +20,19 @@ object Problem59 extends App{
   
   def findPassw( msg: Msg, passwSize : Int = 3 ) : Passw = {
   
-    def isPossibleInMsg( c: Int ) = c.toChar.isLetter || c.toChar.isWhitespace
+    def isPossibleInMsg( c: Int ) = {
+      val ch = c.toChar
+      ch.isLetter || ch.isDigit || ch.isWhitespace
+    }
   
     val candidates : Array[Set[Letter]] = Array.tabulate(msg.size){ i =>
       passwChars.filter( c => isPossibleInMsg(c ^ msg(i)) ).toSet
     }
     
-    for( i <- 0 until msg.size ){
-      println( s"Candidates for ${msg(i)} => ${candidates(i)}  ${candidates(i).map(_.toChar)}" )
-      candidates(i).foreach( c=> print( s" ${(msg(i)^c)}->${(msg(i)^c).toChar}" ) )
-      println()
+    for( i <- 0 until msg.size if(i%3==0) ){
+      println( s"Candidates for ${msg(i)} => ${candidates(i).map(_.toChar)} ${candidates(i)}" )
+      //candidates(i).foreach( c=> print( s" ${(msg(i)^c)}->${(msg(i)^c).toChar}" ) )
+      //println()
     }
     
     val passw = for( i <- 0 until passwSize ) yield {
@@ -55,7 +58,7 @@ object Problem59 extends App{
   println( s"values: ${values.mkString(",")}" )
   
   try{
-    val passw = findPassw(values).map( _.mkString ).mkString
+    val passw = findPassw(values).map( _.map(_.toChar).mkString ).mkString
     
     println( s"passw: $passw" )
     
