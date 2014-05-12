@@ -16,46 +16,20 @@ object Problem59 extends App{
   type Msg = Array[Letter]
   type Passw = Array[Array[Letter]]
   
-  val passwChars = (('a' to 'z').toArray) ++ ('A' to 'Z')
+  val passwChars = ('a' to 'z').toArray
 
   def isPossibleInMsg( c: Int ) = {
     assert( c.isValidChar )
-    val ch = c.toChar
+    val ch = c.toChar 
     ch.isLetter || ch.isDigit || ch.isWhitespace
-  }
-
-  
-  def findPassw__( msg: Msg, passwSize : Int = 3 ) : Passw = {
-  
-  
-    val candidates : Array[Array[Letter]] = Array.tabulate(msg.size){ i =>
-      passwChars.filter( c => isPossibleInMsg(c ^ msg(i)) )
-    }
-    
-    /*
-    for( i <- 0 until msg.size ){
-      println( s"Candidates for ${msg(i)} => ${candidates(i).mkString}" )
-      for( j <- passwChars ){
-        println( s"$j(${j.toInt}) & ${msg(i)}(${msg(i).toInt}) = ${(j ^ msg(i)).toChar}(${j ^ msg(i)})" )
-      }
-    }
-    */
-    
-    
-    val passw = for( i <- 0 until passwSize ) yield {
-      val chars : List[Array[Letter]] = candidates.drop(i).sliding(1,passwSize).map( _(0) ).toList
-      println( s"Candidates for step:$i" )
-      for( c <- chars ) println( c.mkString(",") )
-      chars.reduce( _ intersect _ )
-    }
-    
-    passw.toArray
   }
   
   def findPassw( msg: Msg, passwSize : Int = 3 ) : Passw = {
     val ret = for( i <- 0 until passwSize ) yield{
-      val msgChars = msg.drop(i).sliding(1,passwSize).map( _(0) )
+      val msgChars = msg.drop(i).sliding(1,passwSize).map( _(0) ).toList
       println( s"Finding password character for ${msgChars.map(_.toInt).mkString(",")}" )
+      val hits = passwChars.map( pc => msgChars.map( _ ^ pc ).count( isPossibleInMsg ) )
+      println( s"  hits:${hits.toList}" )
       passwChars.maxBy( pc => msgChars.map( _ ^ pc ).count( isPossibleInMsg ) )
     }
     
@@ -76,21 +50,15 @@ object Problem59 extends App{
                
   println( s"values: ${values.map(_.toInt).mkString(",")}" )
   
-  for( size <- 3 to 3 ){
-    try{
-      val passw = findPassw(values, size)
-      
-      val passwText = passw.map( _.mkString ).mkString
-      
-      println( s"passwText: $passwText" )
-      
-      val decoded = decode( values, passw )
-      println( s"decoded: $decoded" )
-    }
-    catch{
-      case t: Throwable => 
-        println( s"Error: $t" )
-        //t.printStackTrace(System.out)
-    }
-  }
+  val passw = findPassw(values)
+  
+  val passwText = passw.map( _.mkString ).mkString
+  
+  println( s"passwText: $passwText" )
+  
+  val decoded = decode( values, passw )
+  println( s"decoded: $decoded" )
+  
+  val solution = decoded.foldLeft( 0L )( (c,a) => c+a )
+  println( s"Solution: $solution" )
 }
