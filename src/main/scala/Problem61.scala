@@ -33,7 +33,7 @@ object Problem61 extends App{
   val max = 9999
   val candidates = min to max
 
-  def sequenceCandidates( generator: (Numero)=>Numero ) = sequence(generator).dropWhile(_<min).takeWhile(_<=max).toArray
+  def sequenceCandidates( generator: (Numero)=>Numero ) : Seq[Numero] = sequence(generator).dropWhile(_<min).takeWhile(_<=max).toArray
 
   val triangles = sequenceCandidates( n => n*(n+1)/2 )
   val squares = sequenceCandidates( n => n*n )
@@ -42,15 +42,18 @@ object Problem61 extends App{
   val heptagons = sequenceCandidates( n => n*(5*n-3)/2 )
   val octagons = sequenceCandidates( n => n*(n+1)/2 )
   
-  val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
+  //val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
+  val all = List( triangles, squares, pentagons )
   
   def valid( a: Numero, b: Numero ) = a.toString.drop(2) == b.toString.take(2)
   
   val permutations = all.permutations
   
-  def cyclicSet( sets: List[Seq[Numero] ) = {
+  def cyclicSet( sets: List[Seq[Numero] ] ) = {
   
-    def findLineal( current: List[Numero], remainingSets: List[ Seq[Numero] ] ) = {
+    println( s"trying..." )
+  
+    def findLineal( current: List[Numero], remainingSets: List[ Seq[Numero] ] ) : Option[List[Numero]]= {
       if( remainingSets.size == 0 ){
         if( valid( current.last, current.head ) ){
           Some(current)
@@ -60,14 +63,29 @@ object Problem61 extends App{
         }
       }
       else{
-        for( n <- remainingSets.head if valid( current.last, n) ){
-          findLineal( current :+ n, remainingSets.tail )
+
+        val currentSet = remainingSets.head
+        val nextSets = remainingSets.tail
+        def valid_( n: Numero ) = current.size == 0 || valid( current.last, n)
+        val ret = currentSet.
+                  filter( n => valid_( n ) ).
+                  map( n => findLineal( current :+n, nextSets ) ).
+                  find( _.isDefined )
+        
+        ret match{
+          case Some(l) => l
+          case None => None
         }
       }
     }
+    
+    findLineal( Nil, sets )
   }
   
-  val solution = permutations.map( cyclicSet ).find( _.isDefined )
+  val solution = permutations.map( sets => cyclicSet(sets) ).find( _.isDefined ).get.get
+
+  println( s"Solution:$solution ${solution.sum}")
   
+  def whatType( n: Numero ) = all.indexWhere( s => s.contains(n) ) + 3
 
 }
