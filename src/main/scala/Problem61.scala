@@ -28,7 +28,7 @@ object Problem61 extends App{
     }
     ret
   }
-
+  
   val min = 1000
   val max = 9999
   val candidates = min to max
@@ -42,10 +42,32 @@ object Problem61 extends App{
   val heptagons = sequenceCandidates( n => n*(5*n-3)/2 )
   val octagons = sequenceCandidates( n => n*(n+1)/2 )
   
-  val all = Set( triangles, squares, pentagons, hexagons, heptagons, octagons )
+  val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
   
   def valid( a: Numero, b: Numero ) = a.toString.drop(2) == b.toString.take(2)
   
+  val permutations = all.permutations
+  
+  def cyclicSet( sets: List[Seq[Numero] ) = {
+  
+    def findLineal( current: List[Numero], remainingSets: List[ Seq[Numero] ] ) = {
+      if( remainingSets.size == 0 ){
+        if( valid( current.last, current.head ) ){
+          Some(current)
+        }
+        else{
+          None
+        }
+      }
+      else{
+        for( n <- remainingSets.head if valid( current.last, n) ){
+          findLineal( current :+ n, remainingSets.tail )
+        }
+      }
+    }
+  }
+  
+  val solution = permutations.map( cyclicSet ).find( _.isDefined )
   
 
 }
