@@ -20,6 +20,8 @@ Find the sum of the only ordered set of six cyclic 4-digit numbers for which eac
 object Problem61 extends App{
 
   type Numero = Int
+  type FamiliaDeNumeros = Seq[Numero]
+  type Ciclo = List[Numero]
   
   def sequence( generator: (Numero)=>Numero ) = {
     lazy val ret : Stream[Numero] = {
@@ -33,7 +35,7 @@ object Problem61 extends App{
   val max = 9999
   val candidates = min to max
 
-  def sequenceCandidates( generator: (Numero)=>Numero ) : Seq[Numero] = sequence(generator).dropWhile(_<min).takeWhile(_<=max).toArray
+  def sequenceCandidates( generator: (Numero)=>Numero ) : FamiliaDeNumeros = sequence(generator).dropWhile(_<min).takeWhile(_<=max).toArray
 
   val triangles = sequenceCandidates( n => n*(n+1)/2 )
   val squares = sequenceCandidates( n => n*n )
@@ -42,24 +44,26 @@ object Problem61 extends App{
   val heptagons = sequenceCandidates( n => n*(5*n-3)/2 )
   val octagons = sequenceCandidates( n => n*(n+1)/2 )
   
-  //val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
-  val all = List( triangles, squares, pentagons )
+  val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
+  //val all = List( triangles, squares, pentagons )
+  
+  def whatType( n: Numero ) = all.zipWithIndex.filter{ case (s,i) => s.contains(n) }.map{ case (s,i) => i+3 }
   
   def valid( a: Numero, b: Numero ) = a.toString.drop(2) == b.toString.take(2)
   
   val permutations = all.permutations
   
-  def cyclicSet( sets: List[Seq[Numero] ] ) = {
+  def cyclicSet( sets: List[FamiliaDeNumeros] ) = {
   
     println( s"trying..." )
   
-    def findLineal( current: List[Numero], remainingSets: List[ Seq[Numero] ] ) : Option[List[Numero]]= {
+    def findLineal( current: List[Numero], remainingSets: List[ FamiliaDeNumeros ] ) : List[Ciclo]= {
       if( remainingSets.size == 0 ){
         if( valid( current.last, current.head ) ){
-          Some(current)
+          List(current)
         }
         else{
-          None
+          Nil
         }
       }
       else{
@@ -70,22 +74,21 @@ object Problem61 extends App{
         val ret = currentSet.
                   filter( n => valid_( n ) ).
                   map( n => findLineal( current :+n, nextSets ) ).
-                  find( _.isDefined )
-        
-        ret match{
-          case Some(l) => l
-          case None => None
-        }
+                  filter( _ != Nil ).
+                  flatten.
+                  toList
+
+        ret
       }
     }
     
     findLineal( Nil, sets )
   }
   
-  val solution = permutations.map( sets => cyclicSet(sets) ).find( _.isDefined ).get.get
+  val solutions = permutations.map( sets => cyclicSet(sets) )
 
-  println( s"Solution:$solution ${solution.sum}")
-  
-  def whatType( n: Numero ) = all.indexWhere( s => s.contains(n) ) + 3
-
+  println( s"Solutions:$solutions")
+  for( s <- solutions ){
+    println( s.map( n => (n,whatType(n)) ).toList )
+  }
 }
