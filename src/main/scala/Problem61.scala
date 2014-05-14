@@ -47,7 +47,8 @@ object Problem61 extends App{
   val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
   //val all = List( triangles, squares, pentagons )
   
-  def whatType( n: Numero ) = all.zipWithIndex.filter{ case (s,i) => s.contains(n) }.map{ case (s,i) => i+3 }
+  def whatType( n: Numero ) : List[Int] = all.zipWithIndex.filter{ case (s,i) => s.contains(n) }.map{ case (s,i) => i+3 }
+  def whatType( c: Ciclo ) : List[(Numero,List[Int])] = c.map( n => (n,whatType(n)) ).toList
   
   def valid( a: Numero, b: Numero ) = a.toString.drop(2) == b.toString.take(2)
   
@@ -55,11 +56,15 @@ object Problem61 extends App{
   
   def cyclicSet( sets: List[FamiliaDeNumeros] ) = {
   
-    println( s"trying..." )
+    print( s"\ntrying" )
   
     def findLineal( current: List[Numero], remainingSets: List[ FamiliaDeNumeros ] ) : List[Ciclo]= {
+      print( ".")
       if( remainingSets.size == 0 ){
         if( valid( current.last, current.head ) ){
+          if( whatType(current).map( _._2 ).forall( _.size == 1 ) ){
+            println( s"found ${whatType(current)}" )
+          }
           List(current)
         }
         else{
@@ -77,6 +82,10 @@ object Problem61 extends App{
                   filter( _ != Nil ).
                   flatten.
                   toList
+                  
+        if( ret.size > 0 ){
+          println( s"\n\nret: $ret" )          
+        }
 
         ret
       }
@@ -85,10 +94,15 @@ object Problem61 extends App{
     findLineal( Nil, sets )
   }
   
-  val solutions = permutations.map( sets => cyclicSet(sets) )
+  try{
+    val solutions = permutations.map( sets => cyclicSet(sets) )
 
-  println( s"Solutions:$solutions")
-  for( s <- solutions ){
-    println( s.map( n => (n,whatType(n)) ).toList )
+    println( s"\nSolutions:$solutions")
+    for( s <- solutions ; c <- s ){
+      println( whatType(c) )
+    }
+  }
+  catch{
+    case t: Throwable => t.printStackTrace
   }
 }
