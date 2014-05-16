@@ -23,52 +23,38 @@ object Problem61 extends App{
   type FamiliaDeNumeros = Seq[Numero]
   type Ciclo = List[Numero]
   
-  def sequence( generator: (Numero)=>Numero ) = {
-    lazy val ret : Stream[Numero] = {
-      def next(n:Numero) : Stream[Numero] = generator(n) #:: next(n+1)
-      generator(1) #:: next(2)
-    }
-    ret
-  }
+  
+  
+  def sequence( generator: (Numero)=>Numero ) = Iterator.from(1).map( generator )
   
   val min = 1000
   val max = 9999
-  val candidates = min to max
 
-  def sequenceCandidates( generator: (Numero)=>Numero ) : FamiliaDeNumeros = sequence(generator).dropWhile(_<min).takeWhile(_<=max).toArray
-
-  val triangles = sequenceCandidates( n => n*(n+1)/2 )
-  val squares = sequenceCandidates( n => n*n )
-  val pentagons = sequenceCandidates( n => n*(3*n-1)/2 )
-  val hexagons = sequenceCandidates( n => n*(2*n-1)/2 )
-  val heptagons = sequenceCandidates( n => n*(5*n-3)/2 )
-  val octagons = sequenceCandidates( n => n*(n+1)/2 )
+  val triangles = sequence( n => n*(n+1)/2 )
+  val squares = sequence( n => n*n )
+  val pentagons = sequence( n => n*(3*n-1)/2 )
+  val hexagons = sequence( n => n*(2*n-1) )
+  val heptagons = sequence( n => n*(5*n-3)/2 )
+  val octagons = sequence( n => n*(3*n-2) )
   
-  val all = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
-  //val all = List( triangles, squares, pentagons )
+  val originals = List( triangles, squares, pentagons, hexagons, heptagons, octagons )
   
-  def whatType( n: Numero ) : List[Int] = all.zipWithIndex.filter{ case (s,i) => s.contains(n) }.map{ case (s,i) => i+3 }
-  def whatType( c: Ciclo ) : List[(Numero,List[Int])] = c.map( n => (n,whatType(n)) ).toList
   
-  def valid( a: Numero, b: Numero ) = a.toString.drop(2) == b.toString.take(2)
-  
-  val permutations = all.permutations
+  val permutations = originals.
+                     map( _.dropWhile( _<min  ).takeWhile( _<=max ).toSeq ).
+                     permutations
   
   def cyclicSet( sets: List[FamiliaDeNumeros] ) = {
-  
-    print( s"\ntrying" )
-  
-    def findLineal( current: List[Numero], remainingSets: List[ FamiliaDeNumeros ] ) : List[Ciclo]= {
-      print( ".")
+
+    def valid( a: Numero, b: Numero ) = a.toString.drop(2) == b.toString.take(2)
+
+    def findLineal( current: List[Numero], remainingSets: List[ FamiliaDeNumeros ] ) : Option[Ciclo]= {
       if( remainingSets.size == 0 ){
         if( valid( current.last, current.head ) ){
-          if( whatType(current).map( _._2 ).forall( _.size == 1 ) ){
-            println( s"found ${whatType(current)}" )
-          }
-          List(current)
+          Some(current)
         }
         else{
-          Nil
+          None
         }
       }
       else{
@@ -79,30 +65,26 @@ object Problem61 extends App{
         val ret = currentSet.
                   filter( n => valid_( n ) ).
                   map( n => findLineal( current :+n, nextSets ) ).
-                  filter( _ != Nil ).
-                  flatten.
-                  toList
+                  find( _.isDefined )
                   
-        if( ret.size > 0 ){
-          println( s"\n\nret: $ret" )          
+        ret match{
+          case None => None
+          case Some(r) => r
         }
-
-        ret
       }
     }
     
     findLineal( Nil, sets )
   }
   
-  try{
-    val solutions = permutations.map( sets => cyclicSet(sets) )
-
-    println( s"\nSolutions:$solutions")
-    for( s <- solutions ; c <- s ){
-      println( whatType(c) )
-    }
-  }
-  catch{
-    case t: Throwable => t.printStackTrace
-  }
+  val solution = permutations.
+                 map( sets => cyclicSet(sets) ).
+                 find( _.isDefined ).
+                 get.
+                 getOrElse( Nil )
+                
+                 
+                 
+  // (8256, 5625, 2512, 1281, 8128, 2882)               
+  println( s"\nSolution:$solution ${solution.sum}")
 }
