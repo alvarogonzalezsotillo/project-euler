@@ -7,30 +7,45 @@ Find the smallest cube for which exactly five permutations of its digits are cub
 object Problem62 extends App{
 
   type Numero = BigInt
-  implicit class NumeroOps( n: Int ){
-    def toNumero = BigInt(n)
+  implicit class NumeroOps(n: Numero){
+	def cube = n*n*n
+	def numberOfDigits = digits.sum
+	
+	def digits = {
+		def _digits( n: Numero, d: Array[Int] ){
+			if( n != 0 ){
+				val digit = n%10
+				d(digit.toInt) += 1
+				_digits( n/10, d )
+			}
+		}
+		val ret = new Array[Int](10)
+		_digits(n,ret)
+		ret.toSeq
+	 }
+	
   }
+  
   
   def cubesOfDigits( d: Int ) = {
-    def digits( n: Numero ) : Int = {
-      val next = n/10
-      if( next == 0 )
-        1
-      else
-        1 + digits(next)
-    }
-  
     Iterator.from(1).
-             map( _.toNumero ).
-             map( n => n*n*n ).
-             dropWhile( digits(_) < d ).
-             takeWhile( digits(_) == d )
+             map( BigInt(_) ).
+             map( _.cube ).
+             dropWhile( _.numberOfDigits < d ).
+             takeWhile( _.numberOfDigits == d ).
+			 toSeq
   }
   
-  for( d <- Iterator.from(1).take(4+
-  .+-
-  0) ){
+  
+  def cubesWithPermutation(permutations: Int) = Iterator.from(1).map{ d =>
     val c = cubesOfDigits(d)
     println( s"cubes of $d digits: ${c.size}" )
+	c.groupBy( _.digits ).filter{ case(k,v) => v.size == permutations }
   }
+  
+  val solutions = cubesWithPermutation(5).find( _.size > 0 ).get
+  solutions.foreach{ case (k,v) => println( s"$k -> $v" ) }
+  
+  val solution = solutions.values.flatten.min
+  println( s"Solution: $solution" )
 }

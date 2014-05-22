@@ -15,8 +15,8 @@ object Problem63 extends App{
   def basesFor( n: Numero ) = {
     Iterator.from(1).
              map(_.toLong).
-             dropWhile( (_**n).digitsSize < n )
-             takeWhile( (_**n).digitsSize == n ).
+             dropWhile( i => (i**n).digitsSize < n ).
+             takeWhile( i => (i**n).digitsSize == n ).
              toList
   }
   
