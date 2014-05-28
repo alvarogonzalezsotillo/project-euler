@@ -121,5 +121,26 @@ Exactly four continued fractions, for N = 13, have an odd period.
 How many continued fractions for N = 10000 have an odd period?
 */
 object Problem64 extends App{
+  
+  typedef Numero = Int
+  
+  def isqrt( n: Numero, candidate: Numero = 1 ) : Numero = {
+    if( candidate*candidate <= n && (candidate+1)*(candidate+1) > n )
+      candidate
+    else
+      isqrt(n,(n/candidate + candidate)/2)
+  }
 
+  
+  case class Remainder( rooted: Numero, plus: Numero, dividedBy: Numero )
+    
+  
+  def continuedFraction( n: Numero ) = {
+    
+    val a0 = isqrt(n)
+    val remainder0 = Remainder(n, a0, 
+    
+    (a0, 
+  
+  }
 }
