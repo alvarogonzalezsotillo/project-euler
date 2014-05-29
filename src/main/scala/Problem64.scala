@@ -10,15 +10,15 @@ vN = a0 +
  	 	 	a3 + ...
 For example, let us consider v23:
 
-v23 = 4 + v23 — 4 = 4 + 	
+v23 = 4 + v23 â€” 4 = 4 + 	
 1
  = 4 + 	
 1
  	
 1
-v23—4
+v23â€”4
  	1 + 	
-v23 – 3
+v23 â€“ 3
 7
 If we continue we would get the following expansion:
 
@@ -35,72 +35,72 @@ The process can be summarised as follows:
 
 a0 = 4,	 	
 1
-v23—4
+v23â€”4
  = 	
 v23+4
 7
  = 1 + 	
-v23—3
+v23â€”3
 7
 a1 = 1,	 	
 7
-v23—3
+v23â€”3
  = 	
 7(v23+3)
 14
  = 3 + 	
-v23—3
+v23â€”3
 2
 a2 = 3,	 	
 2
-v23—3
+v23â€”3
  = 	
 2(v23+3)
 14
  = 1 + 	
-v23—4
+v23â€”4
 7
 a3 = 1,	 	
 7
-v23—4
+v23â€”4
  = 	
 7(v23+4)
 7
- = 8 + 	v23—4
+ = 8 + 	v23â€”4
 a4 = 8,	 	
 1
-v23—4
+v23â€”4
  = 	
 v23+4
 7
  = 1 + 	
-v23—3
+v23â€”3
 7
 a5 = 1,	 	
 7
-v23—3
+v23â€”3
  = 	
 7(v23+3)
 14
  = 3 + 	
-v23—3
+v23â€”3
 2
 a6 = 3,	 	
 2
-v23—3
+v23â€”3
  = 	
 2(v23+3)
 14
  = 1 + 	
-v23—4
+v23â€”4
 7
 a7 = 1,	 	
 7
-v23—4
+v23â€”4
  = 	
 7(v23+4)
 7
- = 8 + 	v23—4
+ = 8 + 	v23â€”4
 It can be seen that the sequence is repeating. For conciseness, we use the notation v23 = [4;(1,3,1,8)], to indicate that the block (1,3,1,8) repeats indefinitely.
 
 The first ten continued fraction representations of (irrational) square roots are:
@@ -122,7 +122,7 @@ How many continued fractions for N = 10000 have an odd period?
 */
 object Problem64 extends App{
   
-  typedef Numero = Int
+  type Numero = Int
   
   def isqrt( n: Numero, candidate: Numero = 1 ) : Numero = {
     if( candidate*candidate <= n && (candidate+1)*(candidate+1) > n )
@@ -131,16 +131,36 @@ object Problem64 extends App{
       isqrt(n,(n/candidate + candidate)/2)
   }
 
+  def mcd(a: Numero, b: Numero): Numero = if (b == 0) a else if( a == 0 ) b else mcd(b, a % b)
   
-  case class Remainder( rooted: Numero, plus: Numero, dividedBy: Numero )
+  case class Remainder( rooted: Numero, plus: Numero, dividedBy: Numero ){
+    def nextIntPart: Numero = {
+      val root = isqrt(rooted)
+      (root + plus) / dividedBy
+    }
+    
+    def nextRemainder : Remainder = {
+      val db = rooted - (plus - dividedBy*nextIntPart)*(plus - dividedBy*nextIntPart)
+      val p = dividedBy*(plus - dividedBy*nextIntPart)
+      val m = mcd( db, p )
+      Remainder( rooted, p/m, db/m )
+    }
+  }
     
   
   def continuedFraction( n: Numero ) = {
+
+    def next( r: Remainder ) : Stream[(Numero,Remainder)] = {
+      val nextR = r.nextRemainder
+      (r.nextIntPart, nextR ) #:: next( nextR )
+    }
     
     val a0 = isqrt(n)
-    val remainder0 = Remainder(n, a0, 
-    
-    (a0, 
+    val remainder0 = Remainder(n, a0, n - a0*a0 )
+    (a0, remainder0 ) #:: next( remainder0 )
   
   }
+  
+  val  cf = continuedFraction( 23 )
+  println( cf.take(10).toList )
 }
