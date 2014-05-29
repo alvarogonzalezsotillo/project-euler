@@ -122,7 +122,7 @@ How many continued fractions for N = 10000 have an odd period?
 */
 object Problem64 extends App{
   
-  type Numero = Int
+  type Numero = Long
   
   def isqrt( n: Numero, candidate: Numero = 1 ) : Numero = {
     if( candidate*candidate <= n && (candidate+1)*(candidate+1) > n )
@@ -130,21 +130,37 @@ object Problem64 extends App{
     else
       isqrt(n,(n/candidate + candidate)/2)
   }
+  
+  def log( s : => String ) = println( s )
+
+  import Math.sqrt
 
   def mcd(a: Numero, b: Numero): Numero = if (b == 0) a else if( a == 0 ) b else mcd(b, a % b)
   
-  case class Remainder( rooted: Numero, plus: Numero, dividedBy: Numero ){
-    def nextIntPart: Numero = {
-      val root = isqrt(rooted)
-      (root + plus) / dividedBy
-    }
+  def divisible( n: Numero, by: Numero ) = n % by == 0
+  
+  case class Remainder( rooted: Numero, minus: Numero, dividedBy: Numero ){
+  
+    assert( rooted > 0 )
+    assert( minus > 0 )
+    assert( dividedBy > 0 )
+    assert( divisible( rooted - minus*minus, dividedBy ) )
+  
+    lazy val nextDB = rooted - minus*minus
+    lazy val nextIP = (( dividedBy*(sqrt(rooted) + minus) )/nextDB ).toLong
+    lazy val nextM = -dividedBy*minus + nextIP*nextDB
     
-    def nextRemainder : Remainder = {
-      val db = rooted - (plus - dividedBy*nextIntPart)*(plus - dividedBy*nextIntPart)
-      val p = dividedBy*(plus - dividedBy*nextIntPart)
-      val m = mcd( db, p )
-      Remainder( rooted, p/m, db/m )
-    }
+    //val nextIP = ( dividedBy * minus + nextM )/nextDB
+    
+    log( s"nextDB:$nextDB  nextM:$nextM  nextIP:$nextIP" )
+
+    //assert( mcd( nextM, nextDB) == dividedBy )
+    
+    lazy val nextDividedBy = nextDB/dividedBy
+    lazy val nextIntegerPart = nextIP/dividedBy
+    lazy val nextMinus = nextM/dividedBy
+  
+    lazy val nextRemainder = Remainder( rooted, nextMinus, nextDividedBy )
   }
     
   
@@ -152,15 +168,17 @@ object Problem64 extends App{
 
     def next( r: Remainder ) : Stream[(Numero,Remainder)] = {
       val nextR = r.nextRemainder
-      (r.nextIntPart, nextR ) #:: next( nextR )
+      (r.nextIntegerPart, nextR ) #:: next( nextR )
     }
     
     val a0 = isqrt(n)
-    val remainder0 = Remainder(n, a0, n - a0*a0 )
+    val remainder0 = Remainder(n, a0, 1 )
     (a0, remainder0 ) #:: next( remainder0 )
   
   }
   
-  val  cf = continuedFraction( 23 )
-  println( cf.take(10).toList )
+  for( n <- 2 to 13 if isqrt(n).toDouble != sqrt(n) ){
+    val  cf = continuedFraction( n )
+    println( cf.take(10).toList )
+  }
 }
