@@ -131,7 +131,7 @@ object Problem64 extends App{
       isqrt(n,(n/candidate + candidate)/2)
   }
   
-  def log( s : => String ) = println( s )
+  def log( s : => String ) = None//println( s )
 
   import Math.sqrt
 
@@ -150,11 +150,7 @@ object Problem64 extends App{
     lazy val nextIP = (( dividedBy*(sqrt(rooted) + minus) )/nextDB ).toLong
     lazy val nextM = -dividedBy*minus + nextIP*nextDB
     
-    //val nextIP = ( dividedBy * minus + nextM )/nextDB
-    
     log( s"nextDB:$nextDB  nextM:$nextM  nextIP:$nextIP" )
-
-    //assert( mcd( nextM, nextDB) == dividedBy )
     
     lazy val nextDividedBy = nextDB/dividedBy
     lazy val nextIntegerPart = nextIP/dividedBy
@@ -162,7 +158,11 @@ object Problem64 extends App{
   
     lazy val nextRemainder = Remainder( rooted, nextMinus, nextDividedBy )
   }
-    
+   
+   
+   
+  def isSqrtIrrational(n:Numero) = isqrt(n).toDouble != sqrt(n)
+
   
   def continuedFraction( n: Numero ) = {
 
@@ -177,8 +177,31 @@ object Problem64 extends App{
   
   }
   
-  for( n <- 2 to 13 if isqrt(n).toDouble != sqrt(n) ){
-    val  cf = continuedFraction( n )
-    println( cf.take(10).toList )
+  def findPeriod[T,K]( s: Seq[T], m: T=>K ) = {
+    val map = collection.mutable.Map[K,Int]()
+    var ret = (-1,1)
+    s.zipWithIndex.find{ case (elem,index) =>
+      val k = m(elem)
+      val found = map.get(k) match{
+        case Some(i) => 
+          ret = (i,index-1)
+          true
+        case None =>
+          false
+      }
+      map(k) = index
+      found
+    }
+    ret
   }
+  
+  val periods = for( n <- 1 to 10000 if isSqrtIrrational(n) ) yield{
+    val cf = continuedFraction( n )
+    findPeriod(cf, (p:(Numero,Remainder)) => p._2 )
+  }
+  
+  val solution = periods.map( p => p._2 - p._1 + 1 ).count( _ % 2 == 1 )
+  println( s"Solution:$solution" )
 }
+
+
