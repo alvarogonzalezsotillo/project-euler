@@ -120,37 +120,26 @@ object Problem65 extends App {
   }
 
 
-  def expand[T](timesExpand: Int)(implicit num: Integral[T]) = {
-    val one = oneFraction[T]
-    val two = num.fromInt(2)
-    val half = one / two
-    def expand0(timesExpand: Int, accum: Fraction[T], ret: List[Fraction[T]]): List[Fraction[T]] = {
-      if (timesExpand == 0){
-        ret
-      }
-      else{
-        val nextValue = one / (accum + two)
-        val nextRet = accum :: ret
-        expand0(timesExpand - 1, nextValue, nextRet)
-      }
-    }
-    expand0(timesExpand, half, Nil)
-  }
-
   case class ContinuedFraction( intPart: Int, terms: Seq[Int] ){
   }
-
-  val e = ContinuedFraction( 2, Stream.from(1) zip Stream.from(1).map(_*2) zip Stream.from(1)
-
-  println(Fraction(32, 34))
-  println(Fraction(32, 34) + 1)
-  println(oneFraction[Int] / 2)
-
-  measure() {
-    val expansions = expand[BigInt](1000).map( _ + 1 )
-    val solution = expansions.count( f => f.num.toString.size > f.den.toString.size )
-    println( s"Solution: $solution" )
+  
+  def iterate[T]( first: T, computeNext: (T) => (T) )  = {
+    def next( previous: T ) : Stream[T] = {
+      val current = computeNext(previous)
+      current #:: next(current)
+    }
+    first #:: next(first)
   }
+  
+  val eExpansion = {
+    val one = BigInt(1)
+    val ones = Stream.continually( one )
+    val sequence = iterate(one, (i:BigInt) => i + 1 )
+    val expansion = ones zip sequence.map(_ * 2) zip ones 
+    expansion.flatten( t: ((BigInt,BigInt),BigInt) => Seq(t._1._1,t._1._2,t._2) )
+  }
+
+  println( eExpansion.take(20).toList )
 
 
 }
