@@ -106,10 +106,14 @@ object Problem65 extends App {
     def +(f: Self): Self = Fraction(num * f.den + f.num * den, den * f.den).simplify
 
     def +(n: T): Self = this + Fraction(n)
+    
+    def :+(n: T): Self = this + n
 
     def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
 
     def /(n: T): Self = this / Fraction(n)
+    
+    def :/(n: T) Self = this / n
 
     def simplify: Self = {
       val m = mcd(num, den)
@@ -121,24 +125,28 @@ object Problem65 extends App {
 
 
   case class ContinuedFraction( intPart: Int, terms: Seq[Int] ){
-  }
-  
-  def iterate[T]( first: T, computeNext: (T) => (T) )  = {
-    def next( previous: T ) : Stream[T] = {
-      val current = computeNext(previous)
-      current #:: next(current)
-    }
-    first #:: next(first)
-  }
-  
-  val eExpansion = {
-    val one = BigInt(1)
-    val ones = Stream.continually( one )
-    val sequence = iterate(one, (i:BigInt) => i + 1 )
-    val expansion = ones zip sequence.map(_ * 2) zip ones 
-    expansion.flatten( t: ((BigInt,BigInt),BigInt) => Seq(t._1._1,t._1._2,t._2) )
+    def expand( n: Int ) = {
+      var ret = Fraction( BigInt(terms(n-1)), 1 )
+      for( i <- n-2 to 0 by -1 ){
+        ret = BigInt(terms(i)) :+ 1 :/ ret
+      }
+      ret += 2
+      ret
+    }      
   }
 
+  
+  val eExpansion = {
+    val ones = Stream.continually( 1 )
+    val sequence = Stream.from(1)
+    val expansion = ones zip sequence.map(_ * 2) zip ones 
+    def flattener( t: ((Int,Int),Int) ) = Seq(t._1._1,t._1._2,t._2)
+    expansion.flatten( flattener )
+  }
+
+  val e = ContinuedFraction( 2, eExpansion )
+  
+  
   println( eExpansion.take(20).toList )
 
 
