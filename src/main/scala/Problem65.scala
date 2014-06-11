@@ -89,6 +89,22 @@ object Problem65 extends App {
     def oneFraction[T: Integral] = apply(oneScalar)
   }
 
+  class StringIntegral extends Integral[String]{
+    type S = String
+    def compare( x: S, y: S ) = ???
+    def fromInt( i: Int ) = i.toString
+    def minus( x: S, y: S ) = s"($x)-($y)"
+    def negate( x: S ) = s"-($x)"
+    def plus( x: S, y: S ) = s"($x)+($y)"
+    def quot( x: S, y: S ) = s"IntPart(($x)/($y))"
+    def rem( x: S, y: S ) = s"($x)%($y)"
+    def times(x: S, y: S ) = s"($x)*($y)"
+    def toDouble(x: S) = ???
+    def toFloat(x: S) = ???
+    def toInt(x: S) = ???
+    def toLong(x: S) = ???
+  }
+
 
   import Fraction._
 
@@ -107,13 +123,13 @@ object Problem65 extends App {
 
     def +(n: T): Self = this + Fraction(n)
     
-    def :+(n: T): Self = this + n
+    def +:(n: T): Self = Fraction(n)+this
 
     def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
 
     def /(n: T): Self = this / Fraction(n)
     
-    def :/(n: T) Self = this / n
+    def /:(n: T): Self = Fraction(n)/this
 
     def simplify: Self = {
       val m = mcd(num, den)
@@ -124,14 +140,20 @@ object Problem65 extends App {
   }
 
 
-  case class ContinuedFraction( intPart: Int, terms: Seq[Int] ){
+  case class ContinuedFraction[T]( intPart: T, terms: Seq[T] )(implicit numT: Integral[T]){
     def expand( n: Int ) = {
-      var ret = Fraction( BigInt(terms(n-1)), 1 )
-      for( i <- n-2 to 0 by -1 ){
-        ret = BigInt(terms(i)) :+ 1 :/ ret
+      if( n == 0 ){
+        Fraction(intPart)
       }
-      ret += 2
-      ret
+      else{
+        var ret = Fraction( terms(n-1) )
+        val one = numT.one
+        for( i <- n-2 to 0 by -1 ){
+          ret = (one /: ret ) + terms(i)
+        }
+        ret = intPart +: ( one /: ret)
+        ret
+      }
     }      
   }
 
@@ -141,13 +163,17 @@ object Problem65 extends App {
     val sequence = Stream.from(1)
     val expansion = ones zip sequence.map(_ * 2) zip ones 
     def flattener( t: ((Int,Int),Int) ) = Seq(t._1._1,t._1._2,t._2)
-    expansion.flatten( flattener )
+    expansion.flatten( flattener ).map( BigInt(_) )
+              //map( _.toString )
   }
-
-  val e = ContinuedFraction( 2, eExpansion )
   
+  val e = ContinuedFraction( BigInt(2), eExpansion )
   
   println( eExpansion.take(20).toList )
+  
+  for( i <- 0 to 99 ){
+    println( i + "  --  " + e.expand(i) )
+  }
 
 
 }
