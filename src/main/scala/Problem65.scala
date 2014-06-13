@@ -119,17 +119,9 @@ object Problem65 extends App {
 
     def mcm(a: T, b: T) = a * b / mcd(a, b)
 
-    def +(f: Self): Self = Fraction(num * f.den + f.num * den, den * f.den).simplify
+    def add(f: Self): Self = Fraction(num * f.den + f.num * den, den * f.den).simplify
 
-    def +(n: T): Self = this + Fraction(n)
-    
-    def +:(n: T): Self = Fraction(n)+this
-
-    def /(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
-
-    def /(n: T): Self = this / Fraction(n)
-    
-    def /:(n: T): Self = Fraction(n)/this
+    def divide(f: Self): Self = Fraction(num * f.den, den * f.num).simplify
 
     def simplify: Self = {
       val m = mcd(num, den)
@@ -140,6 +132,20 @@ object Problem65 extends App {
   }
 
 
+  implicit class FractionEx[T:Integral]( f: Fraction[T] ){
+    type F = Fraction[T]
+    def +( fr: F ) : F = f add fr
+    def +( t: T ) : F = f add Fraction(t)
+    def /( fr: F )  : F = f divide fr
+    def /( t: T ) : F = f divide Fraction(t)
+  }
+  
+  implicit class EscalarAsFractionEx[T:Integral]( t: T ){
+    type F = Fraction[T]
+    def +( fr: F ) : F = Fraction(t) add fr
+    def /( fr: F )  : F = Fraction(t) divide fr
+  }
+
   case class ContinuedFraction[T]( intPart: T, terms: Seq[T] )(implicit numT: Integral[T]){
     def expand( n: Int ) = {
       if( n == 0 ){
@@ -147,11 +153,11 @@ object Problem65 extends App {
       }
       else{
         var ret = Fraction( terms(n-1) )
-        val one = numT.one
+        val one = Fraction.oneFraction[T]
         for( i <- n-2 to 0 by -1 ){
-          ret = (one /: ret ) + terms(i)
+          ret = (one / ret ) + terms(i)
         }
-        ret = intPart +: ( one /: ret)
+        ret = intPart + ( one / ret)
         ret
       }
     }      
