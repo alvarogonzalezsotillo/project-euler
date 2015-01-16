@@ -40,7 +40,7 @@ object Problem66 extends App {
 
   def findMinimalFor(d: Numero) : (Numero,Numero) = {
     val solutions = for( x <- Iterator.from(1) ; y <- (1 to x*x/d).view if x*x - d*y*y == 1 ) yield (x,y)
-    solutions.head
+    solutions.next
   }
 
   measure{

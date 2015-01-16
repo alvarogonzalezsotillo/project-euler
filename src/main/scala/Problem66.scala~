@@ -39,9 +39,7 @@ object Problem66 extends App {
   type Numero = Int
 
   def findMinimalFor(d: Numero) : (Numero,Numero) = {
-    val solutions = for( x <- Iterator.from(1) ) yield{
-      for( y <- (1 to x*x/d).view if x*x - d*y*y == 1 ) yield (x,y)
-    }
+    val solutions = for( x <- Iterator.from(1) ; y <- (1 to x*x/d).view if x*x - d*y*y == 1 ) yield (x,y)
     solutions.head
   }
 
