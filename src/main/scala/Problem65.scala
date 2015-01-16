@@ -157,7 +157,7 @@ object Problem65 extends App {
         for( i <- n-2 to 0 by -1 ){
           ret = (one / ret ) + terms(i)
         }
-        ret = intPart + ( one / ret)
+        ret = new EscalarAsFractionEx(intPart) + ( one / ret)
         ret
       }
     }      
