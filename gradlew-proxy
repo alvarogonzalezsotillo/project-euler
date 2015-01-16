@@ -1,0 +1,1 @@
+./gradlew -Dhttp.proxyHost=213.0.88.85 -Dhttp.proxyPort=8080 $*
