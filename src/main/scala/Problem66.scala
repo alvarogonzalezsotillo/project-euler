@@ -36,21 +36,28 @@ object Problem66 extends App {
     ret
   }
 
-  type Numero = Int
+  type Numero = Long
 
   def findMinimalFor(d: Numero) : (Numero,Numero) = {
-    val solutions = for( x <- Iterator.from(1) ; y <- (1 to x*x/d).view if x*x - d*y*y == 1 ) yield (x,y)
-    solutions.next
+    val solutions = for( x <- Iterator.from(1).map(_.toLong) ;
+      y = Math.sqrt((x*x-1)/d).toLong if( y >= 1 );
+      v = x*x - d*y*y if v == 1 ) yield (x,y)
+    
+    val ret = solutions.next
+    println( s"d:$d -> $ret" )
+    ret
   }
 
   measure{
-    def values = Iterator.from(1).takeWhile( _ <= 1000 ).toSeq
+    val limit = 1000L
+    def values = Iterator.from(1).map(_.toLong).takeWhile( _ <= limit ).toSeq
     val squares = values.map( d => d*d )
     val dvalues = values filterNot squares.contains 
 
     val minimals = dvalues zip dvalues.map( findMinimalFor )
 
-    println( dvalues.mkString(",") )
-    println( minimals.mkString(",") )
+    val solution = minimals.maxBy{ case (d,(x,y)) => x }._1
+
+    println( s"Solution: $solution" )
   }
 }
