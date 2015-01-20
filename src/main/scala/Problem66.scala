@@ -37,11 +37,17 @@ object Problem66 extends App {
   }
 
   type Numero = Long
+  val maxNumero = Math.sqrt(Long.MaxValue).toLong
+
+  def it( ini: Numero ) = Iterator.iterate(ini)( (n: Numero) => n+1 )
+  def it( ini: Numero, end: Numero ) = it(ini).takeWhile( _ <= end )
+
 
   def findMinimalFor(d: Numero) : (Numero,Numero) = {
-    val solutions = for( x <- Iterator.from(1).map(_.toLong) ;
+    val solutions = for( x <- it(1, maxNumero) ;
       y = Math.sqrt((x*x-1)/d).toLong if( y >= 1 );
-      v = x*x - d*y*y if v == 1 ) yield (x,y)
+      v = x*x - d*y*y ;
+      _ = if( x%100000000 == 0 ) println( s"   maxNumero:$maxNumero  v:$v  x:$x  d:$d  y:$y" ) else () if v == 1 ) yield (x,y)
     
     val ret = solutions.next
     println( s"d:$d -> $ret" )
@@ -50,7 +56,7 @@ object Problem66 extends App {
 
   measure{
     val limit = 1000L
-    def values = Iterator.from(1).map(_.toLong).takeWhile( _ <= limit ).toSeq
+    def values = it(1,limit).toSeq
     val squares = values.map( d => d*d )
     val dvalues = values filterNot squares.contains 
 
