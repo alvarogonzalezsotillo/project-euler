@@ -1,3 +1,5 @@
+import scala.annotation.tailrec
+
 /*
 
 
@@ -38,24 +40,18 @@ object Problem66 extends App {
 
   type Numero = BigInt
 
-  def toNumero( d: Double ) = BigInt( "%1.0f".format( d ) )
-  def sqrt( n: Numero ) = toNumero( Math.sqrt(n.toDouble) )
   def it( ini: Numero ) : Iterator[Numero] = Iterator.iterate(ini)( (n: Numero) => n+1 )
   def it( ini: Numero, end: Numero ) : Iterator[Numero] = it(ini).takeWhile( _ <= end )
 
-
-  def findMinimalFor(d: Numero) : (Numero,Numero) = {
-    val solutions = for( x <- it(1) ;
-      y = sqrt((x*x-1)/d) if( y >= 1 );
-      v = x*x - d*y*y ;
-      _ = if( x%100000000 == 0 ) println( s"    v:$v  x:$x  d:$d  y:$y" ) else () if v == 1 ) yield (x,y)
-    
-    val ret = solutions.next
-    println( s"d:$d -> $ret" )
-    ret
-  }
-
-  def findMinimalFor_fast(max:Numero)(d: Numero) : Option[(Numero,Numero)] = {
+  def findMinimalFor_slow(max:Numero)(d: Numero) : Option[(Numero,Numero)] = {
+    def sqrt( n: Numero ) = {
+      @tailrec
+      def _sqrt( candidate: Numero ) : Numero = (candidate + n/candidate)/2 match{
+        case c if c*c <= n && (c+1)*(c+1) > n => c
+        case c => _sqrt(c)
+      }
+      _sqrt(1 + n/2)
+    }
     var x : Numero = 0
     var y : Numero = 0
     while( y < max && (y == 0 || x*x - d*y*y != 1) ){
@@ -69,15 +65,41 @@ object Problem66 extends App {
     ret // ensuring (_ == findMinimalFor(d) )
   }
 
+  def findMinimalFor( max: Numero )( d: Numero ) : Option[(Numero,Numero)] = {
+
+    implicit class Fraction( v:(Numero,Numero) ){
+      val a = v._1
+      val b = v._2
+      val value = a.toDouble / b.toDouble
+    }
+
+    def convergentsOf( d : Numero ) = {
+      val cf = Problem64.continuedFraction(d.toInt)
+      val dfbi = cf.map{ case (b,remainder) => b }.map( BigInt(_) )
+      lazy val convergents : Stream[(Numero,Numero)]= dfbi.zipWithIndex.map{
+        case (b,i) if i == 0 => (b,BigInt(1))
+        case (b,i) if i == 1 => (b*dfbi(0)+1, b)
+        case (b,i) =>
+          val Ai = b*convergents(i-1).a + convergents(i-2).a
+          val Bi = b*convergents(i-1).b + convergents(i-2).b
+          (Ai,Bi)
+      }
+      convergents
+    }
+
+    convergentsOf(d).find( c => c.a*c.a - d*c.b*c.b == 1 )
+  }
+
   measure{
+
     val limit = 1000L
-    def values = it(1,limit).toSeq
+    def values = it(1,limit).toIndexedSeq
     val squares = values.map( d => d*d )
-    val dvalues = values filterNot squares.contains 
+    val dvalues = (values filterNot squares.contains)
 
-    val minimals = dvalues zip dvalues.map( findMinimalFor_fast(10000000) )
+    val minimals = dvalues zip dvalues.map( findMinimalFor(1000000000) )
 
-    val candidates = minimals.filter{ case (d,option) => option.isEmpty }
+    val candidates = minimals.filter{ case (d,option) => option.isEmpty }.toArray
     println( "Candidates\n:" + candidates.mkString("\n") )
 
     val solution = minimals.maxBy{ case (d,Some( (x,y) ) ) => x }._1

@@ -153,7 +153,7 @@ object Problem64 extends App{
     log( s"nextDB:$nextDB  nextM:$nextM  nextIP:$nextIP" )
     
     lazy val nextDividedBy = nextDB/dividedBy
-    lazy val nextIntegerPart = nextIP/dividedBy
+    lazy val nextIntegerPart = nextIP
     lazy val nextMinus = nextM/dividedBy
   
     lazy val nextRemainder = Remainder( rooted, nextMinus, nextDividedBy )
