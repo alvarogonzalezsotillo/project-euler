@@ -36,22 +36,37 @@ object Problem66 extends App {
     ret
   }
 
-  type Numero = Long
-  val maxNumero = Math.sqrt(Long.MaxValue).toLong
+  type Numero = BigInt
 
-  def it( ini: Numero ) = Iterator.iterate(ini)( (n: Numero) => n+1 )
-  def it( ini: Numero, end: Numero ) = it(ini).takeWhile( _ <= end )
+  def toNumero( d: Double ) = BigInt( "%1.0f".format( d ) )
+  def sqrt( n: Numero ) = toNumero( Math.sqrt(n.toDouble) )
+  def it( ini: Numero ) : Iterator[Numero] = Iterator.iterate(ini)( (n: Numero) => n+1 )
+  def it( ini: Numero, end: Numero ) : Iterator[Numero] = it(ini).takeWhile( _ <= end )
 
 
   def findMinimalFor(d: Numero) : (Numero,Numero) = {
-    val solutions = for( x <- it(1, maxNumero) ;
-      y = Math.sqrt((x*x-1)/d).toLong if( y >= 1 );
+    val solutions = for( x <- it(1) ;
+      y = sqrt((x*x-1)/d) if( y >= 1 );
       v = x*x - d*y*y ;
-      _ = if( x%100000000 == 0 ) println( s"   maxNumero:$maxNumero  v:$v  x:$x  d:$d  y:$y" ) else () if v == 1 ) yield (x,y)
+      _ = if( x%100000000 == 0 ) println( s"    v:$v  x:$x  d:$d  y:$y" ) else () if v == 1 ) yield (x,y)
     
     val ret = solutions.next
     println( s"d:$d -> $ret" )
     ret
+  }
+
+  def findMinimalFor_fast(max:Numero)(d: Numero) : Option[(Numero,Numero)] = {
+    var x : Numero = 0
+    var y : Numero = 0
+    while( y < max && (y == 0 || x*x - d*y*y != 1) ){
+      y += 1
+      val newx = sqrt( 1 + y*y*d )
+      x = newx max x+1
+      if( y%1000000  == 0 ) println( s"  x:$x  d:$d  y:$y" )
+    }
+    val ret = if( x < max ) Some((x,y)) else None
+    println( s"d:$d -> $ret" )
+    ret // ensuring (_ == findMinimalFor(d) )
   }
 
   measure{
@@ -60,9 +75,12 @@ object Problem66 extends App {
     val squares = values.map( d => d*d )
     val dvalues = values filterNot squares.contains 
 
-    val minimals = dvalues zip dvalues.map( findMinimalFor )
+    val minimals = dvalues zip dvalues.map( findMinimalFor_fast(10000000) )
 
-    val solution = minimals.maxBy{ case (d,(x,y)) => x }._1
+    val candidates = minimals.filter{ case (d,option) => option.isEmpty }
+    println( "Candidates\n:" + candidates.mkString("\n") )
+
+    val solution = minimals.maxBy{ case (d,Some( (x,y) ) ) => x }._1
 
     println( s"Solution: $solution" )
   }
