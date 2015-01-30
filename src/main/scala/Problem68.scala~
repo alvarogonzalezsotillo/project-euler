@@ -43,8 +43,8 @@ Using the numbers 1 to 10, and depending on arrangements, it is possible to form
   }
 
   measure{
-    val fivegons = Set(1,2,3,4,5,6,7,8,9,10).subsets
-    val magicFivegons = fivegons.filter(Matic5Gon.isMagic)
+    val fivegons = Seq(1,2,3,4,5,6,7,8,9,10).permutations
+    val magicFivegons = fivegons.filter(Magic5Gon.isMagic)
     val solution = magicFivegons.maxBy( _.mkString )
     println( s"Solution:$solution" );
   }
