@@ -56,7 +56,7 @@ object Problem66 extends App {
 
   measure{
     val limit = 1000L
-    def values = it(1).takeWhile( _ <= limit ).toSeq
+    def values = it(1,limit).toSeq
     val squares = values.map( d => d*d )
     val dvalues = values filterNot squares.contains 
 
