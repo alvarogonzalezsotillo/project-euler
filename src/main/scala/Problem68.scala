@@ -32,6 +32,11 @@ Using the numbers 1 to 10, and depending on arrangements, it is possible to form
 
   object Magic5Gon{
     val externalIndexes = Seq(0,2,4,6,8)
+
+    def firstExternalIsMinimal( fivegon: IndexedSeq[Int] ) = {
+        fivegon(externalIndexes(0)) < (fivegon(externalIndexes(1)) min fivegon(externalIndexes(2)) min fivegon(externalIndexes(3)) min fivegon(externalIndexes(4)) )
+     }
+
     def isMagic( fivegon: IndexedSeq[Int] ) = {
       val sum = fivegon(0) + fivegon(1) + fivegon(3)
 
@@ -40,13 +45,23 @@ Using the numbers 1 to 10, and depending on arrangements, it is possible to form
       sum == fivegon(6) + fivegon(7) + fivegon(9) &&
       sum == fivegon(8) + fivegon(9) + fivegon(1) 
     }
+
+    def asString( fivegon: IndexedSeq[Int] ) = {
+        Seq(fivegon(0),fivegon(1),fivegon(3),
+            fivegon(2),fivegon(3),fivegon(5),
+            fivegon(4),fivegon(5),fivegon(7),
+            fivegon(6),fivegon(7),fivegon(9),
+            fivegon(8),fivegon(9),fivegon(1)).mkString
+    }
   }
 
   measure{
     val fivegons = IndexedSeq(1,2,3,4,5,6,7,8,9,10).permutations
-    val magicFivegons = fivegons.filter(Magic5Gon.isMagic)
-    val solution = magicFivegons.maxBy( _.mkString )
-    println( s"Solution:$solution" );
+    val magicFivegons = fivegons.filter(Magic5Gon.isMagic).filter(Magic5Gon.firstExternalIsMinimal)
+    
+    val fivegon = magicFivegons.maxBy( _.mkString )
+    println( s"fivegon:$fivegon" );
+    println( s"Solution:${Magic5Gon.asString(fivegon)}" );
   }
 
 }
