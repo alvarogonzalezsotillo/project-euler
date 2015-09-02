@@ -102,7 +102,10 @@ object Problem66 extends App {
     val candidates = minimals.filter{ case (d,option) => option.isEmpty }.toArray
     println( "Candidates\n:" + candidates.mkString("\n") )
 
-    val solution = minimals.maxBy{ case (d,Some( (x,y) ) ) => x }._1
+    val solution = minimals.maxBy{ 
+      case (d,Some( (x,y) ) ) => x 
+      case (_,None) => throw new IllegalStateException
+    }._1
 
     println( s"Solution: $solution" )
   }
