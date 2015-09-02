@@ -26,9 +26,9 @@ object Problem5 extends App{
     case _ => mcd( a min b, (a max b) -(a min b) )
   }
 
-  def mcm( a: Numero, b: Numero ) : Numero = a*b/mcd(a,b)
+  def mcm( a: Numero, b: Numero ) : Numero= a*b/mcd(a,b)
 
-  val solution = numbers.fold(1L)( mcm )
+  val solution = numbers.fold(1)( mcm )
 
   println( s"Solution:$solution")
 }
