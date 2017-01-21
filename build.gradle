@@ -7,11 +7,11 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.scala-lang', name: 'scala-library', version: '2.10.3'
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.1'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.6'
+    gradleVersion = '3.3'
 }
 
 task srcZip(type: Zip) {
@@ -21,7 +21,7 @@ task srcZip(type: Zip) {
 }
 
 454.times{ problem ->
-  task "Problem$problem" (type: JavaExec, depensOn:[classes]){
+  task "Problem$problem" (type: JavaExec, dependsOn:[classes]){
     main = "Problem$problem"
     classpath = sourceSets.main.runtimeClasspath
   }

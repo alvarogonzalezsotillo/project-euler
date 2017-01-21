@@ -16,7 +16,7 @@ If the product of these four fractions is given in its lowest common terms, find
 
   def mcd(a: Int, b: Int): Int = if (a == 0) b else mcd(b % a, a)
 
-  class Fraction(val num: Int, val den: Int) extends Pair(num, den) {
+  class Fraction(val num: Int, val den: Int){
     def sameValueAs(f: Fraction) = f.den * num == f.num * den
 
     def simplifyThatWay = {

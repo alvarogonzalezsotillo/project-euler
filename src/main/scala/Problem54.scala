@@ -78,7 +78,7 @@ object Problem54 extends App {
     }
   }
 
-  class Card(val rank: Rank, val suit: Suit) extends Pair(rank, suit)
+  class Card(val rank: Rank, val suit: Suit)
 
   object Card {
     def apply(s: String) = new Card(Rank(s(0)), s(1))

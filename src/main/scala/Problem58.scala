@@ -27,7 +27,7 @@ object Problem58 extends App{
   implicit class WithPower( val n: Numero ) extends AnyVal{
     def pow( exp: Numero ) : Numero = if( exp == 0 ) 1 else n*(n pow (exp-1))
     def ↑( exp: Numero ) = n pow exp
-    def between( p: Pair[Numero,Numero] ) = p._1 <= n && p._2 > n
+    def between( p: (Numero,Numero) ) = p._1 <= n && p._2 > n
     def isqrt : Numero = isqrt(1)
     def isqrt( candidate: Numero ) : Numero = {
       if( n between ( candidate ↑ 2 , (candidate+1) ↑ 2) )
