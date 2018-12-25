@@ -59,7 +59,7 @@ object Problem71 extends App {
         `new`
       }
 
-      if( num < limit ){
+      if( den < limit ){
         findBelow(target, limit, num+1,den, nextBetter)
       }
       else{
