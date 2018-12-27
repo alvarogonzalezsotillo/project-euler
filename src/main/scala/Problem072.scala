@@ -115,10 +115,10 @@ object Problem72 extends App {
     measure(){
       val solution = (limit to 2 by -1).map(φ).sum
       println( s"limit:$limit solution:$solution" )
+      // 303963552391
     }
 
   }
-
 
 
 }
