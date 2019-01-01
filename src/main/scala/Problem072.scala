@@ -87,6 +87,29 @@ object Problem72 extends App {
     ret
   }
 
+  def fastφ(n: Numero) = {
+
+    var ps = primes
+    var remaining = n
+    var phi = n
+
+    while( ps.head <= remaining ){
+      ps = ps.dropWhile( remaining % _ != 0 )
+      val p = ps.head
+      ps = ps.drop(1)
+      while( remaining % p == 0 ){
+        remaining /= p
+      }
+      phi = (phi/p)*(p-1)
+      
+    }
+    if( n % 10000 == 0 ){
+      println( s"fastφ($n)=$phi")
+    }
+
+    phi
+  }
+
 
   def comprobacion(den: Numero) = {
     def mcd( a: Numero, b: Numero ) : Numero= b match{
@@ -97,6 +120,10 @@ object Problem72 extends App {
     val mcds = for( num <- 1 until den.toInt ) yield mcd(num,den)
     val ret = mcds.count( _ == 1 )
     if( ret != φ(den) ){
+      ???
+    }
+    if( ret != fastφ(den) ){
+      println( s"ret:$ret ${fastφ(den)}")
       ???
     }
     if( den % 1000 == 0 ){
