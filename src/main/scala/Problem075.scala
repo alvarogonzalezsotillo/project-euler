@@ -1,17 +1,17 @@
 /*
 
 
-1 -2 2
-2 -1 2
-2 -2 3
+ 1 -2 2
+ 2 -1 2
+ 2 -2 3
 
-1 2 2
-2 1 2
-2 2 3
+ 1 2 2
+ 2 1 2
+ 2 2 3
 
--1 2 2
--2 1 2
--2 2 3
+ -1 2 2
+ -2 1 2
+ -2 2 3
 
 
 
@@ -36,107 +36,64 @@ object Problem75 extends App {
   type Numero = Int
   type Flotante = Double
 
-  class Pytagorean( a: Numero, b: Numero, c: Numero ){
-    assert(a*a == b*b + c*c)
+  case class Pythagorean( a: Numero, b: Numero, c: Numero ){
+    assert(a*a + b*b == c*c)
+    val size = a+b+c
+    override def toString = s"($size) $a $b $c"
   }
 
-  def nextPythagoreans( p: Pytagorean ) = {
+  object FirstPythagorean extends Pythagorean(3,4,5)
+
+  def nextPythagoreans( p: Pythagorean ) = {
     import p._
 
-    val A = Pytagorean(
-        a - 2*b + 2*c,
-      2*a -   b + 2*c,
+    val A = Pythagorean(
+      1*a - 2*b + 2*c,
+      2*a - 1*b + 2*c,
       2*a - 2*b + 3*c
     )
 
-    val B = Pytagorean(
-        a + 2*b + 2*c,
-      2*a +   b + 2*c,
+    val B = Pythagorean(
+      1*a + 2*b + 2*c,
+      2*a + 1*b + 2*c,
       2*a + 2*b + 3*c
     )
 
-    val C = Pytagorean(
-      -a + 2*b + 2*c,
-      -2*a + b + 2*c,
+    val C = Pythagorean(
+      -1*a + 2*b + 2*c,
+      -2*a + 1*b + 2*c,
       -2*a + 2*b + 3*c
     )
 
     Seq(A,B,C)
   }
 
+  def allPythagoreans( filterp: (Pythagorean) => Boolean ) : Stream[Pythagorean] = {
 
-  def checkPitagorean( size : Numero ) = {
-    if( size % 10 == 0 ){
-      //log(size)
+    def next( p: Pythagorean ) : Stream[Pythagorean] = {
+      val n = nextPythagoreans(p).filter(filterp).toStream
+      n #::: n.map(next).flatten
     }
-    val minHipotenuse = size/3
-    val maxHipotenuse = size/2
-    for(
-      h <- (minHipotenuse to maxHipotenuse).iterator ;
-      h2 = h*h ;
-      catetos = size - h ;
-      cateto1 <- 1L to catetos/2 ;
-      cateto2 = catetos-cateto1
-      if( h2 == cateto1*cateto1 + cateto2*cateto2 && cateto1 <= cateto2 ) ) yield{
-        val ret = (size,h,cateto1,cateto2)
-        //log( s"yield: $ret")
-        ret
-    }
+
+    FirstPythagorean #:: next(FirstPythagorean)
   }
 
+
   measure(){
-    val limit = 10000
-    val array : Array[Int] = Array.fill(limit+1)(-1)
+    val limit = 1500000
 
-    def sizeIsOne( it: Iterator[_]) = {
-      //it.size == 1
-      if( !it.hasNext ){
-        0
-      }
-      else{
-        it.drop(1)
-        if( it.hasNext ) 2 else 1
-      }
-    }
+    val ps = allPythagoreans( _.size <= limit )
 
-    def suma( posicion: Int, valor: Int ) = {
-      if( array(posicion) == -1 ){
-        array(posicion) = 0
-      }
-      array(posicion) += valor
-    }
+    println( ps.last )
+    println( ps.size )
 
-    for( i <- 1 to limit ){
-      if( i % 2 == 1 ){
-        array(i) = 0
-      }
-      else if( array(i) == -1 ){
-        log( s"Calculo posición $i")
-        val check = checkPitagorean(i)
-        val size = sizeIsOne(check)
-        log( s"  size:$size")
-        if( size == 0 ){
-          log( s"  posición $i a 0")
-          suma(i,size)
-        }
-        else{
-          for( j <- i to limit by i ){
-            log( s"  sumo $size a la posición $j")
-            suma(j,size)
-            log( s"  la posición $j queda a ${array(j)}")
-          }
-        }
-      }
-      else{
-        println( s"No calculo posición $i")
-      }
-    }
+    val g = ps.groupBy( _.size )
+    println( g.values.map(_.size).toSet )
 
-    println( array.zipWithIndex.mkString("\n"))
+    println( g.values.filter(_.size == 4).mkString("\n") )
 
-
-    //log( s"solution: $solution") 
- 
+    //log( s"solution: $solution")
+    
   }
 
 
