@@ -84,15 +84,15 @@ object Problem75 extends App {
 
     val ps = allPythagoreans( _.size <= limit )
 
-    println( ps.last )
-    println( ps.size )
+    val siege = new Array[Int](limit+1)
 
-    val g = ps.groupBy( _.size )
-    println( g.values.map(_.size).toSet )
+    for( p <- ps ; i <- p.size to limit by p.size ){
+      siege(i) += 1
+    }
 
-    println( g.values.filter(_.size == 4).mkString("\n") )
+    val solution = siege.count(_==1)
 
-    //log( s"solution: $solution")
+    println( s"solution: $solution") //161667
     
   }
 
