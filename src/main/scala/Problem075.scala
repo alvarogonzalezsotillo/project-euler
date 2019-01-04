@@ -37,7 +37,7 @@ object Problem75 extends App {
   type Flotante = Double
 
   case class Pythagorean( a: Numero, b: Numero, c: Numero ){
-    assert(a*a + b*b == c*c)
+    //assert(a*a + b*b == c*c)
     val size = a+b+c
     override def toString = s"($size) $a $b $c"
   }
@@ -68,21 +68,68 @@ object Problem75 extends App {
     Seq(A,B,C)
   }
 
-  def allPythagoreans( filterp: (Pythagorean) => Boolean ) : Stream[Pythagorean] = {
 
-    def next( p: Pythagorean ) : Stream[Pythagorean] = {
-      val n = nextPythagoreans(p).filter(filterp).toStream
-      n #::: n.map(next).flatten
+  def DFS[T]( first: T, next: (T)=>Seq[T], filterp: (T) => Boolean ) : Stream[T] = {
+
+
+    def nextStream( p: T ) : Stream[T] = {
+      val n = next(p).filter(filterp).toStream
+      n #::: n.map(nextStream).flatten
     }
 
-    FirstPythagorean #:: next(FirstPythagorean)
+    first #:: nextStream(first)
   }
 
+  def BFS[T]( first: T, next: (T)=>Seq[T], filterp: (T) => Boolean ) : Stream[T] = {
+    def nextStream( queue: List[T] ) : Stream[T] = {
+      if( queue.size == 0 ){
+        Stream.empty
+      }
+      else{
+        val (head,tail) = (queue.head,queue.tail)
+        val nextT = next(head).filter(filterp).toList
+        head #:: nextStream( tail ++ nextT )
+      }
+    }
 
-  measure(){
-    val limit = 1500000
+   nextStream( List(first) )
+  }
 
-    val ps = allPythagoreans( _.size <= limit )
+  val limit = 1500000
+
+  def adhoc() = {
+    val siege = new Array[Int](limit+1)
+
+    def next( p: Pythagorean ) : Unit = {
+      if( p.size > limit ){
+        return
+      }
+      var i = p.size
+      while( i <= limit ){
+        siege(i) += 1
+        i += p.size
+      }
+      val children = nextPythagoreans(p)
+      next(children(0))
+      next(children(1))
+      next(children(2))
+    }
+
+    next(FirstPythagorean)
+    var ret = 0
+    var i = 0
+    while( i <= limit ){
+      if( siege(i) == 1 ){
+        ret += 1
+      }
+      i += 1
+    }
+    ret
+  }
+
+  def solution( search: ((Pythagorean)=>Boolean) => Stream[Pythagorean] ) = {
+
+    val ps = search( _.size <= limit )
 
     val siege = new Array[Int](limit+1)
 
@@ -90,9 +137,24 @@ object Problem75 extends App {
       siege(i) += 1
     }
 
-    val solution = siege.count(_==1)
+    siege.count(_==1)
+  }
 
-    println( s"solution: $solution") //161667
+  measure(){
+    val s = solution( DFS(FirstPythagorean,nextPythagoreans,_) )
+    println( s"solution DFS: $s") //161667 815ms
+    
+  }
+
+  measure(){
+    val s = solution( BFS(FirstPythagorean,nextPythagoreans,_) )
+    println( s"solution BFS: $s") //161667 7995ms
+    
+  }
+
+  measure(){
+    val s = adhoc
+    println( s"solution adhoc: $s") //161667 125ms
     
   }
 
