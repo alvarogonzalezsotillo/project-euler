@@ -69,30 +69,26 @@ object Problem75 extends App {
   }
 
 
-  def DFS[T]( first: T, next: (T)=>Seq[T], filterp: (T) => Boolean ) : Stream[T] = {
-
-
-    def nextStream( p: T ) : Stream[T] = {
-      val n = next(p).filter(filterp).toStream
+  def DFS[T]( first: T, next: (T)=>Seq[T] ) : Stream[T] = {
+    def nextStream( t: T ) : Stream[T] = {
+      val n = next(t).toStream
       n #::: n.map(nextStream).flatten
     }
-
     first #:: nextStream(first)
   }
 
-  def BFS[T]( first: T, next: (T)=>Seq[T], filterp: (T) => Boolean ) : Stream[T] = {
+  def BFS[T]( first: T, next: (T)=>Seq[T] ) : Stream[T] = {
     def nextStream( queue: List[T] ) : Stream[T] = {
       if( queue.size == 0 ){
         Stream.empty
       }
       else{
         val (head,tail) = (queue.head,queue.tail)
-        val nextT = next(head).filter(filterp).toList
+        val nextT = next(head).toList
         head #:: nextStream( tail ++ nextT )
       }
     }
-
-   nextStream( List(first) )
+    nextStream( List(first) )
   }
 
   val limit = 1500000
@@ -109,10 +105,28 @@ object Problem75 extends App {
         siege(i) += 1
         i += p.size
       }
-      val children = nextPythagoreans(p)
-      next(children(0))
-      next(children(1))
-      next(children(2))
+      import p._
+      
+      val A = Pythagorean(
+        1*a - 2*b + 2*c,
+        2*a - 1*b + 2*c,
+        2*a - 2*b + 3*c
+      )
+
+      val B = Pythagorean(
+        1*a + 2*b + 2*c,
+        2*a + 1*b + 2*c,
+        2*a + 2*b + 3*c
+      )
+
+      val C = Pythagorean(
+        -1*a + 2*b + 2*c,
+        -2*a + 1*b + 2*c,
+        -2*a + 2*b + 3*c
+      )
+      next(A)
+      next(B)
+      next(C)
     }
 
     next(FirstPythagorean)
@@ -127,9 +141,7 @@ object Problem75 extends App {
     ret
   }
 
-  def solution( search: ((Pythagorean)=>Boolean) => Stream[Pythagorean] ) = {
-
-    val ps = search( _.size <= limit )
+  def solution( ps: Stream[Pythagorean] ) = {
 
     val siege = new Array[Int](limit+1)
 
@@ -141,13 +153,12 @@ object Problem75 extends App {
   }
 
   measure(){
-    val s = solution( DFS(FirstPythagorean,nextPythagoreans,_) )
+    val s = solution( DFS(FirstPythagorean, (p:Pythagorean) => nextPythagoreans(p).filter(_.size <= limit) ) )
     println( s"solution DFS: $s") //161667 815ms
-    
   }
 
   measure(){
-    val s = solution( BFS(FirstPythagorean,nextPythagoreans,_) )
+    val s = solution( BFS(FirstPythagorean, (p:Pythagorean) => nextPythagoreans(p).filter(_.size <= limit) ) )
     println( s"solution BFS: $s") //161667 7995ms
     
   }
